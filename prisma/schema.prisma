@@ -1,0 +1,362 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // SQLite fallback: provider = "sqlite", url = "file:./dev.db" — the schema
+  // deliberately avoids enums/Json/native types so no other change is needed.
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────── Auth & people ─────────────────────────
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("AGENT") // ADMIN | AGENT
+  status       String   @default("ACTIVE") // ACTIVE | DISABLED
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions             Session[]
+  agentProfile         AgentProfile?
+  assignedBookings     BookingRequest[] @relation("AssignedBookings")
+  recordedPayments     Payment[]
+  ledgerEntriesCreated LedgerEntry[]    @relation("LedgerCreatedBy")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique // sha256 of the cookie token
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model AgentProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referralCode    String   @unique
+  companyName     String?
+  phone           String
+  city            String?
+  commissionRate  Float    @default(10) // % of totalPrice credited on CONFIRMED
+  platformFeeRate Float    @default(5) // % of totalPrice debited on CONFIRMED
+  status          String   @default("PENDING") // PENDING | APPROVED | SUSPENDED
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  programs      Program[]
+  bookings      BookingRequest[]
+  ledgerEntries LedgerEntry[]
+}
+
+model AgentApplication {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  companyName String?
+  city        String?
+  message     String?
+  status      String   @default("NEW") // NEW | APPROVED | REJECTED
+  createdAt   DateTime @default(now())
+}
+
+model Driver {
+  id           String           @id @default(cuid())
+  name         String
+  phone        String
+  city         String?
+  vehicleType  String?
+  vehiclePlate String?
+  capacity     Int?
+  status       String           @default("ACTIVE") // ACTIVE | INACTIVE
+  notes        String?
+  providerId   String?
+  provider     ServiceProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  transfers Transfer[]
+}
+
+model ServiceProvider {
+  id          String   @id @default(cuid())
+  name        String
+  type        String // TRANSPORT | HOTEL | OTHER
+  contactName String?
+  phone       String?
+  email       String?
+  city        String?
+  status      String   @default("ACTIVE") // ACTIVE | INACTIVE
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  drivers   Driver[]
+  transfers Transfer[]
+}
+
+// ───────────────── Destinations / areas / attractions ─────────────────
+
+model Destination {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  country     String
+  type        String // DOMESTIC | INTERNATIONAL
+  description String?
+  image       String?
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  areas    Area[]
+  programs Program[]
+}
+
+model Area {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+  parentId      String?
+  parent        Area?       @relation("AreaTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children      Area[]      @relation("AreaTree")
+  kind          String // REGION | PROVINCE | GOVERNORATE | CITY | DISTRICT | OTHER
+  name          String
+  description   String?
+  sortOrder     Int         @default(0)
+
+  attractions    Attraction[]
+  itineraryItems ItineraryItem[]
+
+  @@index([destinationId])
+  @@index([parentId])
+}
+
+model Attraction {
+  id           String  @id @default(cuid())
+  areaId       String
+  area         Area    @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  name         String
+  category     String // LANDMARK | MUSEUM | RESTAURANT | PARK | MALL | ACTIVITY | OTHER
+  description  String?
+  image        String?
+  durationMin  Int?
+  costEstimate Int? // SAR whole
+  active       Boolean @default(true)
+
+  itineraryItems ItineraryItem[]
+
+  @@index([areaId])
+}
+
+// ───────────────────── Programs & itineraries ─────────────────────
+
+model Program {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  title         String
+  category      String // TOUR | STUDY
+  summary       String?
+  description   String?
+  coverImage    String?
+  basePrice     Int? // SAR whole, per person
+  status        String        @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  visibility    String        @default("PUBLIC") // PUBLIC | UNLISTED | PRIVATE
+  isApproved    Boolean       @default(false) // admin moderation; platform-owned auto-true
+  featured      Boolean       @default(false)
+  destinationId String?
+  destination   Destination?  @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  ownerAgentId  String? // null = platform-owned
+  ownerAgent    AgentProfile? @relation(fields: [ownerAgentId], references: [id], onDelete: SetNull)
+
+  // TOUR
+  tourType     String? // DOMESTIC | INTERNATIONAL
+  durationDays Int?
+  inclusions   String? // newline-separated
+  exclusions   String? // newline-separated
+
+  // STUDY
+  studyKind        String? // LANGUAGE | UNIVERSITY | SCHOLARSHIP
+  institute        String?
+  studyCity        String?
+  durationWeeks    Int?
+  tuitionMin       Int?
+  tuitionMax       Int?
+  requirements     String? // newline-separated
+  servicesIncluded String? // newline-separated
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  days     ItineraryDay[]
+  bookings BookingRequest[]
+
+  @@index([category, status, visibility])
+  @@index([ownerAgentId])
+}
+
+model ItineraryDay {
+  id          String  @id @default(cuid())
+  programId   String
+  program     Program @relation(fields: [programId], references: [id], onDelete: Cascade)
+  dayNumber   Int
+  title       String
+  description String?
+
+  items ItineraryItem[]
+
+  @@unique([programId, dayNumber])
+}
+
+model ItineraryItem {
+  id           String       @id @default(cuid())
+  dayId        String
+  day          ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  sortOrder    Int
+  type         String // ACTIVITY | TRANSPORT | HOTEL | MEAL | FLIGHT | FREE_TIME | OTHER
+  title        String
+  notes        String?
+  startTime    String? // "HH:mm"
+  durationMin  Int?
+  areaId       String?
+  area         Area?        @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  attractionId String?
+  attraction   Attraction?  @relation(fields: [attractionId], references: [id], onDelete: SetNull)
+
+  @@index([dayId, sortOrder])
+}
+
+// ───────── Bookings / payments / transfers / ledger ─────────
+
+model BookingRequest {
+  id            String        @id @default(cuid())
+  code          String        @unique // "KH-7F3K2A"
+  programId     String?
+  program       Program?      @relation(fields: [programId], references: [id], onDelete: SetNull)
+  programTitle  String? // snapshot at creation, survives program deletion
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  adults        Int           @default(1)
+  children      Int           @default(0)
+  preferredDate DateTime?
+  status        String        @default("NEW") // NEW | CONTACTED | QUOTED | CONFIRMED | COMPLETED | CANCELLED
+  source        String        @default("WEBSITE") // WEBSITE | AGENT | ADMIN
+  agentId       String?
+  agent         AgentProfile? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  assignedToId  String?
+  assignedTo    User?         @relation("AssignedBookings", fields: [assignedToId], references: [id], onDelete: SetNull)
+  totalPrice    Int? // SAR whole
+  customerNotes String?
+  internalNotes String?
+  confirmedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  payments      Payment[]
+  transfers     Transfer[]
+  ledgerEntries LedgerEntry[]
+
+  @@index([status])
+  @@index([agentId])
+  @@index([createdAt])
+}
+
+model Payment {
+  id           String         @id @default(cuid())
+  bookingId    String
+  booking      BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount       Int // SAR whole
+  method       String // CASH | BANK_TRANSFER | CARD | OTHER
+  reference    String?
+  paidAt       DateTime       @default(now())
+  notes        String?
+  recordedById String?
+  recordedBy   User?          @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime       @default(now())
+
+  @@index([bookingId])
+}
+
+model Transfer {
+  id           String           @id @default(cuid())
+  bookingId    String
+  booking      BookingRequest   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  date         DateTime
+  time         String? // "HH:mm"
+  fromLocation String
+  toLocation   String
+  pax          Int              @default(1)
+  vehicleType  String?
+  driverId     String?
+  driver       Driver?          @relation(fields: [driverId], references: [id], onDelete: SetNull)
+  providerId   String?
+  provider     ServiceProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  status       String           @default("REQUESTED") // REQUESTED | ASSIGNED | COMPLETED | CANCELLED
+  price        Int?
+  notes        String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([bookingId])
+  @@index([status])
+  @@index([date])
+}
+
+model LedgerEntry {
+  id          String          @id @default(cuid())
+  agentId     String
+  agent       AgentProfile    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  bookingId   String?
+  booking     BookingRequest? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  type        String // COMMISSION | PLATFORM_FEE | PAYOUT | ADJUSTMENT
+  amount      Int // signed SAR: + credits the agent, − debits them
+  note        String?
+  createdById String?
+  createdBy   User?           @relation("LedgerCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now())
+
+  @@index([agentId, createdAt])
+  @@index([bookingId])
+}
+
+// ───────────────────────── Site content ─────────────────────────
+
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Testimonial {
+  id        String  @id @default(cuid())
+  name      String
+  role      String?
+  text      String
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+}
