@@ -20,4 +20,9 @@ export default nextConfig;
 
 // Emulates Cloudflare bindings (incl. HYPERDRIVE.localConnectionString)
 // during `next dev`, so getCloudflareContext() works locally too.
-initOpenNextCloudflareForDev();
+// MUST stay gated: the library's own guard doesn't check the phase, so an
+// unconditional call spawns workerd during `next start` on regular Node
+// hosts (e.g. Render) and hijacks the DB URL with localConnectionString.
+if (process.env.NODE_ENV === "development") {
+  initOpenNextCloudflareForDev();
+}

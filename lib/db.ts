@@ -4,20 +4,21 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 function connectionString(): string {
-  // On Cloudflare Workers (and during `next dev`, where
-  // initOpenNextCloudflareForDev emulates the binding) the Hyperdrive
-  // binding is the source of truth for the database URL.
+  // An explicit DATABASE_URL always wins: Node hosts (e.g. Render) inject it,
+  // and local dev/scripts read it from .env. The Hyperdrive binding is the
+  // source of truth only on Cloudflare Workers, where DATABASE_URL is unset —
+  // never let an emulated binding's localConnectionString shadow a real URL.
+  const url = process.env.DATABASE_URL;
+  if (url) return url;
   try {
     const { env } = getCloudflareContext();
     const cs = (env as { HYPERDRIVE?: { connectionString: string } })
       .HYPERDRIVE?.connectionString;
     if (cs) return cs;
   } catch {
-    // Not in a Workers context (plain Node scripts) — fall through.
+    // Not in a Workers context — fall through to the error below.
   }
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error("Set DATABASE_URL or bind HYPERDRIVE");
-  return url;
+  throw new Error("Set DATABASE_URL or bind HYPERDRIVE");
 }
 
 // One client per request via react cache(). A pg connection must never be
