@@ -1,5 +1,5 @@
 # Render Blueprint — ينشر منصة خطار كاملةً: خادم Next.js + قاعدة PostgreSQL،
-# ويربطهما ويشغّل الهجرات وseed الإنتاج تلقائياً.
+# ويربطهما ويشغّل الهجرات وseed الإدارة تلقائياً.
 #
 # الاستخدام (مرة واحدة): render.com ← New ← Blueprint ← اربط هذا المستودع ←
 # Apply. سيطلب منك Render إدخال بريد/كلمة مرور الإدارة فقط (sync:false)،
@@ -18,10 +18,9 @@ services:
     plan: free # للتجربة (ينام بعد ١٥ دقيقة خمول)؛ للإنتاج رقِّ إلى starter
     region: frankfurt # الأقرب للجمهور السعودي
     buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build
-    # يُشغّل بعد البناء وقبل تحويل الزوار للنسخة الجديدة: هجرات ثم seed إداري idempotent.
-    preDeployCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts
-    # يحقن رابط الموقع من عنوان Render تلقائياً إن لم يُضبط يدوياً.
-    startCommand: export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
+    # الهجرات وseed الإدارة تُشغَّل عند الإقلاع (القاعدة الداخلية متاحة وقت التشغيل،
+    # وهذا يعمل على الخطة المجانية بخلاف preDeployCommand المدفوعة). كلاهما idempotent.
+    startCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts && export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
