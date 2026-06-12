@@ -20,9 +20,9 @@ const db = new PrismaClient({
 async function main() {
   const email = process.env.SEED_ADMIN_EMAIL?.toLowerCase().trim();
   const password = process.env.SEED_ADMIN_PASSWORD;
-  if (!email || !password || password.length < 12) {
+  if (!email || !password || password.length < 8) {
     throw new Error(
-      "SEED_ADMIN_EMAIL و SEED_ADMIN_PASSWORD (12 حرفاً فأكثر) مطلوبان",
+      "SEED_ADMIN_EMAIL و SEED_ADMIN_PASSWORD (8 أحرف فأكثر) مطلوبان",
     );
   }
 
