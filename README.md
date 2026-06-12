@@ -74,30 +74,30 @@ pnpm dev                          # http://localhost:3000
 
 ## النشر على Cloudflare Workers (الإنتاج)
 
-تم تجهيز كل شيء في المستودع (workflow + إعدادات + seed إنتاج). المتبقي خطوات لوحات التحكم التالية **مرة واحدة**:
+النشر يتم عبر **GitHub Actions** (`.github/workflows/deploy.yml`) — يعمل على خوادم GitHub التي تصل إلى Cloudflare. كل شيء مُؤتمت؛ كل ما تحتاج توفيره **ثلاثة أشياء**: رابط قاعدة Postgres، مفتاح Cloudflare API، وبيانات حساب الإدارة. الـ CI يتكفّل بإنشاء Hyperdrive وحقن معرّفه والبناء والنشر.
 
-### 1) قاعدة البيانات — Neon (مجاني)
-1. أنشئ حساباً في console.neon.tech ← New Project ← المنطقة **AWS eu-central-1 (فرانكفورت)** ← اسم القاعدة `khuttar`.
-2. (موصى به) Roles ← New Role باسم `hyperdrive-user` ← **انسخ كلمة المرور فوراً** (تظهر مرة واحدة).
-3. من Connection Details اختر الفرع/القاعدة/الدور ثم **ألغِ تفعيل Connection pooling** وانسخ الرابط المباشر:
-   `postgresql://hyperdrive-user:كلمة_المرور@ep-xxxx.eu-central-1.aws.neon.tech/khuttar?sslmode=require`
-   هذا الرابط الواحد يُستخدم في الخطوتين 5 و8.
+### 1) قاعدة البيانات — Neon (مجاني) أو أي Postgres تملكه
+1. console.neon.tech ← New Project ← المنطقة **AWS eu-central-1 (فرانكفورت)** ← اسم القاعدة `khuttar`.
+2. من Connection Details **ألغِ تفعيل Connection pooling** وانسخ الرابط المباشر:
+   `postgresql://USER:PASSWORD@ep-xxxx.eu-central-1.aws.neon.tech/khuttar?sslmode=require`
+   (إن كان لديك Postgres جاهز — استخدم رابطه المباشر بدل Neon.)
 
-### 2) Cloudflare
-4. أنشئ الحساب ← Workers & Pages ← اختر اسم نطاقك الفرعي `*.workers.dev`.
-5. Storage & Databases ← **Hyperdrive** ← Create configuration باسم `khuttar-db` ← الصق رابط Neon المباشر ← **انسخ الـ ID** وضعه في `wrangler.jsonc` بدل القيمة المؤقتة في `hyperdrive[0].id` (ثم ادفع التعديل).
-6. الخطة: **Workers Paid ($5/شهر) موصى بها بقوة** — الحزمة الحالية 2.78MiB مضغوطة (تحت حد المجاني 3MiB بهامش ~220KiB فقط)، وعمليات الدخول (PBKDF2) تتجاوز حد CPU للخطة المجانية (10ms). يمكن البدء مجاناً للتجربة وقبول بطء/رفض متقطع للدخول، لكن للإنتاج اشترك في Paid من Billing.
-7. My Profile ← API Tokens ← Create Token بقالب **"Edit Cloudflare Workers"** مقيّداً بحسابك ← انسخه. وانسخ **Account ID** من الشريط الجانبي في Workers & Pages.
+### 2) Cloudflare — مفتاح وحساب فقط (لا لمس للوحة)
+3. الخطة: **Workers Paid ($5/شهر) موصى بها بقوة** — الحزمة 2.78MiB مضغوطة (قرب حد المجاني 3MiB) وعمليات الدخول (PBKDF2) تتجاوز حد CPU المجاني. اشترك من Billing.
+4. My Profile ← API Tokens ← Create Token بقالب **"Edit Cloudflare Workers"**، ثم **أضف صلاحية `Hyperdrive: Edit`** (لأن الـ CI ينشئ إعداد Hyperdrive) ← انسخ التوكن. وانسخ **Account ID** من الشريط الجانبي.
 
-### 3) GitHub
-8. Settings ← Secrets and variables ← Actions ← أضف **Secrets**:
-   `CLOUDFLARE_API_TOKEN` • `CLOUDFLARE_ACCOUNT_ID` • `DATABASE_URL` (رابط Neon المباشر) • `SEED_ADMIN_EMAIL` • `SEED_ADMIN_PASSWORD` (12+ حرفاً)
-   وأضف **Variable**: `NEXT_PUBLIC_APP_URL` = `https://khuttar.نطاقك.workers.dev` (وحدّث نفس القيمة في `wrangler.jsonc`).
-9. أول نشر: تبويب Actions ← **Deploy to Cloudflare Workers** ← Run workflow مع تفعيل خيار `seed` ← بعد نجاحه افتح `/login` وادخل بحساب الإدارة الذي حددته.
-   كل push لاحق إلى `main` ينشر تلقائياً (migrate ثم deploy).
+### 3) GitHub — أضف الأسرار والمتغيرات (Settings ← Secrets and variables ← Actions)
+5. **Secrets**: `CLOUDFLARE_API_TOKEN` • `DATABASE_URL` (الرابط المباشر) • `SEED_ADMIN_EMAIL` • `SEED_ADMIN_PASSWORD` (12+ حرفاً) • (اختياري) `CLOUDFLARE_ACCOUNT_ID`.
+6. **Variable**: `NEXT_PUBLIC_APP_URL` = `https://khuttar.نطاقك.workers.dev`.
 
-### 4) الدومين الرسمي (لاحقاً)
-أضف نطاقكم إلى Cloudflare (تغيير nameservers) ← من صفحة الـ Worker: Settings ← Domains & Routes ← **Custom domain** ← حدّث `NEXT_PUBLIC_APP_URL` في المكانين وادفع.
+### 4) أنشئ Hyperdrive ثم انشر (من واجهة GitHub فقط)
+7. تبويب Actions ← **Deploy to Cloudflare Workers** ← Run workflow مع تفعيل **`provision_hyperdrive`** ← بعد نجاحه افتح سجل الوظيفة وانسخ قيمة **`id`** الظاهرة.
+8. أضف **Variable** جديداً: `HYPERDRIVE_ID` = القيمة المنسوخة.
+9. شغّل **Deploy to Cloudflare Workers** مجدداً مع تفعيل **`seed`** (بدون provision) ← الموقع يصبح حياً على `https://khuttar.نطاقك.workers.dev`.
+   بعدها: كل push إلى `main` ينشر تلقائياً (migrate ثم deploy).
+
+### 5) الدومين الرسمي (لاحقاً)
+أضف نطاقك إلى Cloudflare (تغيير nameservers) ← صفحة الـ Worker ← Settings ← Domains & Routes ← **Custom domain** ← حدّث المتغيّر `NEXT_PUBLIC_APP_URL` وادفع تغييراً بسيطاً لإعادة النشر.
 
 ### بعد النشر مباشرة
 - غيّر كلمة مرور الإدارة من `/admin/users`.
@@ -106,8 +106,9 @@ pnpm dev                          # http://localhost:3000
 - حدّث بيانات التواصل من `/admin/settings`.
 
 ### ملاحظات تشغيلية
-- **ثلاثة روابط اتصال لا تُخلط**: Hyperdrive (داخل إعداد Cloudflare، يستخدمه الـ Worker) • الرابط المباشر (سر GitHub، للهجرات والـ seed فقط) • المحلي (`.env`).
-- التجربة محلياً على بيئة Workers الحقيقية: `pnpm preview` (يبني ويشغّل workerd على :8787 متصلاً بقاعدتك المحلية عبر `localConnectionString`).
+- **ثلاثة روابط اتصال لا تُخلط**: Hyperdrive (داخل إعداد Cloudflare، يستخدمه الـ Worker وقت التشغيل) • الرابط المباشر (سر `DATABASE_URL` في GitHub، للهجرات والـ seed فقط) • المحلي (`.env`).
+- **ملفات إعداد Cloudflare**: `wrangler.jsonc` للتطوير المحلي (به `localConnectionString` ومعرّف مؤقت) — لا يُلمس. أما الإنتاج فيُولَّد في CI من `wrangler.template.jsonc` عبر `scripts/render-wrangler.mjs` الذي يحقن `HYPERDRIVE_ID` و`NEXT_PUBLIC_APP_URL`.
+- التجربة محلياً على بيئة Workers الحقيقية: `pnpm preview` (يبني ويشغّل workerd على :8787 متصلاً بقاعدتك المحلية).
 - seed الإنتاج (`pnpm db:seed:prod`) آمن وidempotent؛ الـ seed التجريبي **مدمّر** ولن يعمل بدون `SEED_ALLOW_DESTRUCTIVE=1`.
 
 ## صفحة العرض على GitHub Pages

@@ -1,15 +1,26 @@
 name: Deploy to Cloudflare Workers
 
+# النشر يتم من هنا (خوادم GitHub لها وصول شبكي كامل لـ Cloudflare).
+# الأسرار/المتغيرات المطلوبة في إعدادات المستودع → Settings → Secrets and variables → Actions:
+#   Secrets:   CLOUDFLARE_API_TOKEN, DATABASE_URL, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD
+#   Variables: HYPERDRIVE_ID, NEXT_PUBLIC_APP_URL
+#   (CLOUDFLARE_ACCOUNT_ID سرّ اختياري؛ يُكتشف تلقائياً من التوكن إن لم يُضبط.)
+
 on:
   push:
     branches: [main]
     paths-ignore:
       - "docs/**"
       - ".github/workflows/pages.yml"
+      - "README.md"
   workflow_dispatch:
     inputs:
+      provision_hyperdrive:
+        description: "أنشئ إعداد Hyperdrive واطبع معرّفه (شغّلها مرة واحدة، ثم احفظ الـ ID في متغيّر HYPERDRIVE_ID)"
+        type: boolean
+        default: false
       seed:
-        description: "Run production seed (admin + site settings)"
+        description: "شغّل seed الإنتاج (حساب الإدارة + إعدادات الموقع)"
         type: boolean
         default: false
 
@@ -18,7 +29,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  # خطوة لمرة واحدة: إنشاء إعداد Hyperdrive وطباعة معرّفه في السجل.
+  # تعمل فقط عند تشغيل يدوي مع تفعيل provision_hyperdrive.
+  provision:
+    if: github.event_name == 'workflow_dispatch' && inputs.provision_hyperdrive
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Create Hyperdrive config (idempotent)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          set -e
+          echo "::group::Hyperdrive configs الحالية"
+          pnpm exec wrangler hyperdrive list || true
+          echo "::endgroup::"
+          echo "إنشاء إعداد باسم khuttar-db ..."
+          pnpm exec wrangler hyperdrive create khuttar-db \
+            --connection-string="$DATABASE_URL" || {
+              echo "ربما الإعداد موجود مسبقاً — اعرض القائمة لأخذ الـ ID:";
+              pnpm exec wrangler hyperdrive list;
+            }
+          echo ""
+          echo "================ التالي ================"
+          echo "انسخ القيمة المقابلة لـ id أعلاه واحفظها في:"
+          echo "Settings → Secrets and variables → Actions → Variables → HYPERDRIVE_ID"
+          echo "ثم شغّل النشر العادي (Run workflow بدون provision)."
+
   migrate:
+    if: github.event_name != 'workflow_dispatch' || !inputs.provision_hyperdrive
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +87,7 @@ jobs:
 
   deploy:
     needs: migrate
+    if: github.event_name != 'workflow_dispatch' || !inputs.provision_hyperdrive
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,6 +97,11 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
       - run: pnpm prisma generate
+      - name: Render production wrangler.jsonc (inject Hyperdrive id + URL)
+        env:
+          HYPERDRIVE_ID: ${{ vars.HYPERDRIVE_ID }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+        run: node scripts/render-wrangler.mjs
       - name: Build and deploy (OpenNext → wrangler)
         run: pnpm opennextjs-cloudflare build && pnpm opennextjs-cloudflare deploy
         env:

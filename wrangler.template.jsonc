@@ -1,0 +1,26 @@
+{
+  // قالب الإنتاج: يُحوّل في GitHub Actions إلى wrangler.jsonc عبر
+  // scripts/render-wrangler.mjs، الذي يستبدل ${HYPERDRIVE_ID}
+  // و${NEXT_PUBLIC_APP_URL} من متغيّرات الـ Actions. لا تضع قيماً حقيقية هنا.
+  // للتطوير المحلي استخدم wrangler.jsonc المُلتزَم (به localConnectionString).
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "khuttar",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "${HYPERDRIVE_ID}"
+    }
+  ],
+  "vars": {
+    "NEXT_PUBLIC_APP_URL": "${NEXT_PUBLIC_APP_URL}"
+  },
+  "observability": { "enabled": true },
+  "placement": { "mode": "smart" }
+}
