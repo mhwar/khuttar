@@ -73,7 +73,7 @@ pnpm dev                          # http://localhost:3000
 
 ## صفحة العرض على GitHub Pages
 
-مصدر الصفحة في `docs/` ويُنشر على فرع `gh-pages`. لتحديث اللقطات بعد تغييرات الواجهة:
+مصدر الصفحة في `docs/` وتُنشر تلقائياً عبر workflow (`.github/workflows/pages.yml`) مع كل تعديل على `docs/` في `main`. لتحديث اللقطات بعد تغييرات الواجهة:
 
 ```bash
 node scripts/screenshots.mjs   # يتطلب المنصة شغّالة على :3000 ومتصفح headless
