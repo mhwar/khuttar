@@ -1,0 +1,38 @@
+# Render Blueprint — ينشر منصة خطار كاملةً: خادم Next.js + قاعدة PostgreSQL،
+# ويربطهما ويشغّل الهجرات وseed الإنتاج تلقائياً.
+#
+# الاستخدام (مرة واحدة): render.com ← New ← Blueprint ← اربط هذا المستودع ←
+# Apply. سيطلب منك Render إدخال بريد/كلمة مرور الإدارة فقط (sync:false)،
+# ثم يتكفّل بكل ما تبقّى. كل push إلى main بعدها ينشر تلقائياً.
+
+databases:
+  - name: khuttar-db
+    databaseName: khuttar
+    user: khuttar
+    plan: free # للتجربة؛ للإنتاج رقِّ إلى basic-256mb (قاعدة Render المجانية تُحذف بعد ٣٠ يوماً)
+
+services:
+  - type: web
+    name: khuttar
+    runtime: node
+    plan: free # للتجربة (ينام بعد ١٥ دقيقة خمول)؛ للإنتاج رقِّ إلى starter
+    region: frankfurt # الأقرب للجمهور السعودي
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build
+    # يُشغّل بعد البناء وقبل تحويل الزوار للنسخة الجديدة: هجرات ثم seed إداري idempotent.
+    preDeployCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts
+    # يحقن رابط الموقع من عنوان Render تلقائياً إن لم يُضبط يدوياً.
+    startCommand: export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # رابط القاعدة يُحقن تلقائياً من قاعدة Render أعلاه — لا تلمسه.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: khuttar-db
+          property: connectionString
+      # يطلبهما Render منك مرة واحدة عند Apply (الشيء الوحيد الذي تُدخله).
+      - key: SEED_ADMIN_EMAIL
+        sync: false
+      - key: SEED_ADMIN_PASSWORD
+        sync: false

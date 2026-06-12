@@ -6,13 +6,10 @@ name: Deploy to Cloudflare Workers
 #   Variables: HYPERDRIVE_ID, NEXT_PUBLIC_APP_URL
 #   (CLOUDFLARE_ACCOUNT_ID سرّ اختياري؛ يُكتشف تلقائياً من التوكن إن لم يُضبط.)
 
+# ملاحظة: هذا المسار البديل (Cloudflare). المسار الموصى به الآن هو Render
+# (انظر render.yaml و README) وهو لا يحتاج هذا الـ workflow إطلاقاً.
+# لذا التشغيل يدوي فقط حتى لا يفشل تلقائياً قبل ضبط أسرار Cloudflare.
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - ".github/workflows/pages.yml"
-      - "README.md"
   workflow_dispatch:
     inputs:
       provision_hyperdrive:
