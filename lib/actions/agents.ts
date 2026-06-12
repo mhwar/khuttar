@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { hash } from "bcryptjs";
+import { hashPassword } from "@/lib/password";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -66,7 +66,7 @@ export async function createAgent(
       data: {
         name,
         email,
-        passwordHash: await hash(password, 10),
+        passwordHash: await hashPassword(password),
         role: "AGENT",
         agentProfile: {
           create: { ...profile, referralCode, status: "APPROVED" },

@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "khuttar",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      // ضع هنا معرّف إعداد Hyperdrive بعد إنشائه من لوحة Cloudflare
+      // (Storage & Databases ← Hyperdrive). القيمة الحالية مؤقتة وتكفي
+      // للتشغيل المحلي فقط (wrangler dev / next dev).
+      "id": "00000000000000000000000000000000",
+      // يُستخدم محلياً فقط: wrangler dev و next dev يتصلان بهذه القاعدة.
+      "localConnectionString": "postgresql://khattar:khattar@localhost:5432/khattar"
+    }
+  ],
+  "vars": {
+    // حدّثه إلى رابط workers.dev بعد أول نشر، ثم إلى الدومين الرسمي لاحقاً.
+    "NEXT_PUBLIC_APP_URL": "https://khuttar.YOUR-SUBDOMAIN.workers.dev"
+  },
+  "observability": { "enabled": true },
+  // يقرّب تنفيذ الـ Worker من قاعدة البيانات (فرانكفورت) لتسريع الاستعلامات
+  // المتسلسلة في الطلب الواحد.
+  "placement": { "mode": "smart" }
+}

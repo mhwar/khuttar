@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { compare } from "bcryptjs";
+import { verifyPassword } from "@/lib/password";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { createSession, destroySession, getCurrentUser } from "@/lib/auth";
@@ -31,7 +31,7 @@ export async function login(
   const valid =
     user &&
     user.status === "ACTIVE" &&
-    (await compare(parsed.data.password, user.passwordHash));
+    (await verifyPassword(parsed.data.password, user.passwordHash));
 
   if (!valid) {
     await sleep(400);

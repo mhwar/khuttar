@@ -1,11 +1,17 @@
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcryptjs";
+import { hashPassword } from "../lib/password";
 
 const db = new PrismaClient();
 
 const PASSWORD = "Khattar123!";
 
 async function main() {
+  // This seed WIPES every table — never point it at production.
+  if (process.env.SEED_ALLOW_DESTRUCTIVE !== "1") {
+    throw new Error(
+      "هذا الـ seed التجريبي يمسح كل البيانات. شغّله محلياً فقط مع SEED_ALLOW_DESTRUCTIVE=1",
+    );
+  }
   console.log("🌱 إعادة تهيئة البيانات التجريبية...");
 
   // Reverse-dependency cleanup (dev-style reset).
@@ -29,7 +35,7 @@ async function main() {
   await db.agentProfile.deleteMany();
   await db.user.deleteMany();
 
-  const passwordHash = await hash(PASSWORD, 10);
+  const passwordHash = await hashPassword(PASSWORD);
 
   // ── Users & agents ────────────────────────────────────────────
   const admin = await db.user.create({

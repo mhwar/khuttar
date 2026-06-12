@@ -42,3 +42,10 @@ next-env.d.ts
 
 # keep the example env
 !.env.example
+
+# cloudflare / opennext
+.open-next/
+.dev.vars*
+cloudflare-env.d.ts
+worker-configuration.d.ts
+.wrangler/

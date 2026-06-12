@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { hash } from "bcryptjs";
+import { hashPassword } from "@/lib/password";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -150,7 +150,7 @@ export async function saveUser(
     ...data,
     status: active ? "ACTIVE" : "DISABLED",
     ...(password && password.length >= 8
-      ? { passwordHash: await hash(password, 10) }
+      ? { passwordHash: await hashPassword(password) }
       : {}),
   };
 
@@ -158,7 +158,7 @@ export async function saveUser(
     await db.user.update({ where: { id }, data: payload });
   } else {
     await db.user.create({
-      data: { ...payload, passwordHash: await hash(password!, 10) },
+      data: { ...payload, passwordHash: await hashPassword(password!) },
     });
   }
 
