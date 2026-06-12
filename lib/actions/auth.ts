@@ -9,7 +9,9 @@ import { ar } from "@/lib/i18n/ar";
 import type { ActionState } from "@/lib/forms";
 
 const loginSchema = z.object({
-  email: z.string().min(1).toLowerCase(),
+  // trim: mobile keyboards (iOS autocomplete) append a trailing space after
+  // the email, which would silently fail the user lookup.
+  email: z.string().trim().min(1).toLowerCase(),
   password: z.string().min(1),
 });
 
