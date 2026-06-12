@@ -26,10 +26,21 @@ async function main() {
     );
   }
 
+  // Rescue switch: set SEED_ADMIN_RESET=1 (one redeploy) to force-sync the
+  // admin password from the env vars, then REMOVE the var — otherwise any
+  // password changed later from /admin/users would be reverted on redeploys.
+  const forceReset = process.env.SEED_ADMIN_RESET === "1";
+
   const admin = await db.user.upsert({
     where: { email },
-    // Empty update: never touch an existing admin's password.
-    update: {},
+    // Default: never touch an existing admin's password.
+    update: forceReset
+      ? {
+          passwordHash: await hashPassword(password),
+          role: "ADMIN",
+          status: "ACTIVE",
+        }
+      : {},
     create: {
       email,
       name: "إدارة خطار",
@@ -37,6 +48,11 @@ async function main() {
       role: "ADMIN",
     },
   });
+  if (forceReset) {
+    console.log(
+      "🔁 SEED_ADMIN_RESET=1: تم تحديث كلمة مرور الإدارة من متغيرات البيئة — احذف المتغيّر الآن",
+    );
+  }
 
   await db.siteSetting.createMany({
     data: [
