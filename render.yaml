@@ -10,6 +10,7 @@ databases:
     databaseName: khuttar
     user: khuttar
     plan: free # للتجربة؛ للإنتاج رقِّ إلى basic-256mb (قاعدة Render المجانية تُحذف بعد ٣٠ يوماً)
+    region: frankfurt # يجب أن تطابق منطقة الخدمة (شبكة Render الخاصة لا تعبر المناطق)
 
 services:
   - type: web
@@ -17,7 +18,7 @@ services:
     runtime: node
     plan: free # للتجربة (ينام بعد ١٥ دقيقة خمول)؛ للإنتاج رقِّ إلى starter
     region: frankfurt # الأقرب للجمهور السعودي
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build
+    buildCommand: corepack enable && pnpm install --no-frozen-lockfile && pnpm prisma generate && pnpm build
     # الهجرات وseed الإدارة تُشغَّل عند الإقلاع (القاعدة الداخلية متاحة وقت التشغيل،
     # وهذا يعمل على الخطة المجانية بخلاف preDeployCommand المدفوعة). كلاهما idempotent.
     startCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts && export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
