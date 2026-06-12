@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>منصة خطار — عرض ومراجعة | Khattar Platform Showcase</title>
+  <meta name="description" content="معرض منصة خطار للسياحة والدراسة بالخارج: لقطات حقيقية من الموقع العام ولوحتي الإدارة والوكلاء وصفحة رحلة العميل، مع طريقة التشغيل والتجربة." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300..900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #0e7490;
+      --primary-dark: #155e63;
+      --teal-deep: #134e4a;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 14px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: "Cairo", "Segoe UI", Tahoma, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+    a { color: inherit; }
+    img { display: block; max-width: 100%; }
+    .container { max-width: 1100px; margin-inline: auto; padding-inline: 20px; }
+
+    header.site {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    header.site .container { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+    .brand { font-weight: 900; font-size: 26px; color: var(--primary); text-decoration: none; }
+    nav.top { display: flex; gap: 4px; flex-wrap: wrap; }
+    nav.top a { text-decoration: none; font-size: 14px; font-weight: 600; color: var(--muted); padding: 6px 12px; border-radius: 8px; }
+    nav.top a:hover { background: #ecfeff; color: var(--primary); }
+
+    .hero {
+      background: linear-gradient(220deg, var(--primary), var(--primary-dark) 55%, var(--teal-deep));
+      color: #fff; text-align: center; padding: 72px 20px 88px;
+    }
+    .hero h1 { font-size: clamp(30px, 5vw, 48px); font-weight: 900; line-height: 1.35; }
+    .hero p.lead { max-width: 760px; margin: 14px auto 0; font-size: 18px; color: rgba(255,255,255,.88); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 22px; }
+    .chip { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25); padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+    .hero .actions { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; text-decoration: none; font-weight: 700; border-radius: 10px; padding: 11px 26px; font-size: 15px; transition: transform .15s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn.light { background: #fff; color: var(--primary-dark); }
+    .btn.ghost { border: 1.5px solid rgba(255,255,255,.5); color: #fff; }
+
+    .notice {
+      max-width: 860px; margin: -40px auto 0; position: relative;
+      background: #fffbeb; border: 1px solid #fde68a; color: #78350f;
+      border-radius: var(--radius); padding: 16px 22px; font-size: 14.5px;
+      box-shadow: 0 10px 30px rgba(2, 44, 52, .08);
+    }
+    .notice strong { font-weight: 800; }
+
+    section.block { padding: 64px 0 12px; }
+    .block h2 { font-size: 28px; font-weight: 900; text-align: center; }
+    .block .sub { text-align: center; color: var(--muted); max-width: 700px; margin: 8px auto 36px; }
+
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .feature { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .feature .ico { font-size: 26px; }
+    .feature h3 { font-size: 16.5px; font-weight: 800; margin: 8px 0 4px; }
+    .feature p { font-size: 14px; color: var(--muted); }
+
+    .group-title { display: flex; align-items: center; gap: 10px; margin: 44px 0 18px; }
+    .group-title h3 { font-size: 20px; font-weight: 800; white-space: nowrap; }
+    .group-title::after { content: ""; height: 1px; background: var(--border); flex: 1; }
+
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+    .shot { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow .2s; }
+    .shot:hover { box-shadow: 0 12px 32px rgba(2,44,52,.12); }
+    .shot a.frame { display: block; position: relative; }
+    .shot .imgwrap { height: 240px; overflow: hidden; background: #eef2f7; }
+    .shot .imgwrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .shot.tall .imgwrap img { object-position: top; }
+    .shot .cap { padding: 13px 16px; }
+    .shot .cap b { display: block; font-size: 15px; font-weight: 800; }
+    .shot .cap span { font-size: 13px; color: var(--muted); }
+    .shot .zoom {
+      position: absolute; top: 10px; inset-inline-start: 10px;
+      background: rgba(15, 23, 42, .65); color: #fff; font-size: 11.5px; font-weight: 700;
+      padding: 3px 10px; border-radius: 999px;
+    }
+    .shot.wide { grid-column: 1 / -1; }
+    .shot.wide .imgwrap { height: 420px; }
+
+    .flow { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+    .flow ol { margin-inline-start: 22px; display: grid; gap: 10px; font-size: 15px; }
+    .flow b { color: var(--primary-dark); }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 18px; font-weight: 700; font-size: 14px; }
+    .pill { background: #ecfeff; border: 1px solid #a5f3fc; color: var(--primary-dark); border-radius: 999px; padding: 4px 14px; }
+    .arrow { color: var(--muted); }
+
+    .try { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; align-items: start; }
+    @media (max-width: 800px) { .try { grid-template-columns: 1fr; } }
+    pre {
+      direction: ltr; text-align: left; background: #0f172a; color: #e2e8f0;
+      border-radius: var(--radius); padding: 20px; font-size: 13px; overflow-x: auto; line-height: 1.7;
+    }
+    pre .c { color: #64748b; }
+    .creds { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .creds h3 { font-weight: 800; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 9px 10px; border-bottom: 1px solid var(--border); text-align: start; }
+    th { color: var(--muted); font-weight: 700; font-size: 12.5px; }
+    code { background: #f1f5f9; border-radius: 6px; padding: 2px 8px; direction: ltr; display: inline-block; font-size: 13px; }
+    .creds .hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+    footer.site { margin-top: 70px; border-top: 1px solid var(--border); background: #fff; padding: 26px 0; text-align: center; color: var(--muted); font-size: 14px; }
+    footer.site a { color: var(--primary); font-weight: 700; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header class="site">
+  <div class="container">
+    <a class="brand" href="#">خطار</a>
+    <nav class="top">
+      <a href="#features">المزايا</a>
+      <a href="#shots">لقطات المنصة</a>
+      <a href="#flow">دورة العمل</a>
+      <a href="#try">جرّبها بنفسك</a>
+      <a href="https://github.com/mhwar/khuttar">المستودع ↗</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>منصة خطار للسياحة والدراسة بالخارج</h1>
+    <p class="lead">
+      برامج سياحية بجداول يومية مفصلة، برامج لغة وابتعاث، شبكة وكلاء بعمولات وكشوف حساب،
+      وتنسيق نقل مع السائقين — في منصة عربية واحدة بلوحتي تحكم وموقع عام.
+    </p>
+    <div class="chips">
+      <span class="chip">Next.js 16</span><span class="chip">React 19</span>
+      <span class="chip">Tailwind v4 + shadcn/ui</span><span class="chip">Prisma + PostgreSQL</span>
+      <span class="chip">عربي RTL بالكامل</span><span class="chip">39 صفحة</span>
+    </div>
+    <div class="actions">
+      <a class="btn light" href="#shots">شاهد اللقطات الحقيقية</a>
+      <a class="btn ghost" href="#try">شغّلها محلياً في ٣ خطوات</a>
+    </div>
+  </div>
+</section>
+
+<div class="notice">
+  <strong>ملاحظة للمراجعين:</strong> هذه صفحة عرض ثابتة على GitHub Pages. المنصة نفسها تطبيق متكامل
+  (خادم + قاعدة بيانات + تسجيل دخول) لا يمكن استضافته على Pages — كل اللقطات أدناه
+  <strong>التُقطت من المنصة وهي تعمل فعلياً</strong> ببيانات تجريبية، وتعليمات تشغيلها كاملة في الأسفل.
+</div>
+
+<section id="features" class="block">
+  <div class="container">
+    <h2>ماذا تغطي المنصة؟</h2>
+    <p class="sub">كل متطلبات شركة سياحة حديثة: من التسويق للبرامج حتى تحصيل عمولات الوكلاء</p>
+    <div class="features">
+      <div class="feature"><div class="ico">🗓️</div><h3>باني جداول الرحلات</h3><p>أيام ← فقرات (نشاط، تنقّل، فندق، وجبة، طيران) بأوقات ومدد، واختيار المعلم يعبّئ البيانات تلقائياً.</p></div>
+      <div class="feature"><div class="ico">🔗</div><h3>صفحة رحلة للعميل</h3><p>رابط خاص لكل حجز يعرض الجدول والحالة والمدفوعات وبيانات السائق — بدون تسجيل دخول.</p></div>
+      <div class="feature"><div class="ico">🤝</div><h3>نظام وكلاء كامل</h3><p>وكلاء يبنون برامجهم ويبيعونها بكود إحالة، مع موافقة الإدارة قبل النشر العام.</p></div>
+      <div class="feature"><div class="ico">💰</div><h3>عمولات وكشوف حساب</h3><p>عند تأكيد الحجز تُنشأ عمولة الوكيل ورسوم المنصة آلياً — مرة واحدة فقط — برصيد متحرك ودفعات وتسويات.</p></div>
+      <div class="feature"><div class="ico">🚐</div><h3>النقل والسائقون</h3><p>طلبات نقل لكل حجز تُسند لسائقين أو شركات نقل، مع سجل مزوّدي خدمات (نقل، فنادق...).</p></div>
+      <div class="feature"><div class="ico">📍</div><h3>وجهات بتقسيمات مرنة</h3><p>وجهة ← منطقة/محافظة/مدينة/حي (شجرة حرّة) ← معالم بتكلفة ومدة تقديرية تُستخدم في الجداول.</p></div>
+      <div class="feature"><div class="ico">🎓</div><h3>الدراسة والابتعاث</h3><p>برامج لغة وجامعات وابتعاث: المعهد، الرسوم، المتطلبات، وخدمات القبول والسكن والتأشيرة.</p></div>
+      <div class="feature"><div class="ico">📊</div><h3>خط متابعة الحجوزات</h3><p>جديد ← تواصل ← تسعير ← تأكيد ← اكتمال، بصلاحيات تُبقي الحركة المالية بيد الإدارة.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="shots" class="block">
+  <div class="container">
+    <h2>لقطات حقيقية من المنصة</h2>
+    <p class="sub">اضغط أي لقطة لفتحها بالحجم الكامل</p>
+
+    <div class="group-title"><h3>🌍 الموقع العام للعملاء</h3></div>
+    <div class="gallery">
+      <div class="shot wide"><a class="frame" href="assets/shots/home.png" target="_blank"><span class="zoom">عرض كامل ⤢</span><div class="imgwrap"><img src="assets/shots/home.png" alt="الصفحة الرئيسية" loading="lazy" /></div></a><div class="cap"><b>الصفحة الرئيسية</b><span>هيرو تسويقي، وجهات مميزة، برامج سياحية ودراسية، دعوة انضمام الوكلاء، وآراء العملاء</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/programs.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/programs.png" alt="قائمة البرامج" loading="lazy" /></div></a><div class="cap"><b>البرامج السياحية</b><span>فلاتر بالنوع والوجهة مع بطاقات بالسعر والمدة</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/program-detail.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/program-detail.png" alt="تفاصيل برنامج" loading="lazy" /></div></a><div class="cap"><b>صفحة البرنامج</b><span>يشمل/لا يشمل، الجدول اليومي الكامل، ونموذج طلب الحجز (يدعم كود إحالة الوكيل)</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/destination.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/destination.png" alt="صفحة وجهة" loading="lazy" /></div></a><div class="cap"><b>صفحة الوجهة</b><span>التقسيمات (مناطق ومدن وأحياء)، المعالم، والبرامج المرتبطة</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/study.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/study.png" alt="برنامج دراسي" loading="lazy" /></div></a><div class="cap"><b>برنامج دراسي</b><span>المعهد والمدينة والرسوم والمتطلبات وخدمات خطار في القبول</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/home-mobile.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/home-mobile.png" alt="نسخة الجوال" loading="lazy" /></div></a><div class="cap"><b>متجاوبة بالكامل</b><span>تجربة جوال أولاً لكل الصفحات العامة ولوحات التحكم</span></div></div>
+    </div>
+
+    <div class="group-title"><h3>✨ تجربة العميل الاستثنائية</h3></div>
+    <div class="gallery">
+      <div class="shot wide tall"><a class="frame" href="assets/shots/trip.png" target="_blank"><span class="zoom">عرض كامل ⤢</span><div class="imgwrap"><img src="assets/shots/trip.png" alt="صفحة رحلة العميل" loading="lazy" /></div></a><div class="cap"><b>صفحة رحلة العميل /b/[code]</b><span>العميل يفتح رابطه فيجد: ترحيباً باسمه، حالة الحجز، المدفوعات، خدمات النقل مع جوال السائق بعد الإسناد، وجدول رحلته يوماً بيوم — بدون أي تسجيل دخول</span></div></div>
+    </div>
+
+    <div class="group-title"><h3>🛠️ لوحة الإدارة</h3></div>
+    <div class="gallery">
+      <div class="shot"><a class="frame" href="assets/shots/admin-overview.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-overview.png" alt="نظرة عامة" loading="lazy" /></div></a><div class="cap"><b>نظرة عامة</b><span>إحصائيات الحجوزات والمدفوعات وتنبيهات طلبات الانضمام والنقل</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/admin-bookings.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-bookings.png" alt="الحجوزات" loading="lazy" /></div></a><div class="cap"><b>خط متابعة الحجوزات</b><span>تصفية بالحالة وبحث، مع مصدر كل طلب ووكيله</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/admin-booking-detail.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-booking-detail.png" alt="تفاصيل حجز" loading="lazy" /></div></a><div class="cap"><b>تفاصيل الحجز</b><span>أزرار الانتقال المسموح فقط، تسجيل الدفعات، طلبات النقل وإسناد السائقين، ورابط مشاركة الرحلة</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/admin-itinerary-builder.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-itinerary-builder.png" alt="باني الجدول" loading="lazy" /></div></a><div class="cap"><b>باني جداول الرحلات</b><span>الأداة المميزة: أيام قابلة للطي، فقرات بأيقونات الأنواع، إعادة ترتيب، ومعاينة بعين العميل</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/admin-agent.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-agent.png" alt="ملف وكيل" loading="lazy" /></div></a><div class="cap"><b>إدارة الوكيل</b><span>الاعتماد والإيقاف، نسب العمولة والرسوم، وكشف حساب برصيد متحرك مع قيود يدوية</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/admin-destinations.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/admin-destinations.png" alt="الوجهات" loading="lazy" /></div></a><div class="cap"><b>الوجهات</b><span>إدارة الوجهات وتقسيماتها الشجرية ومعالمها التي تغذي باني الجداول</span></div></div>
+    </div>
+
+    <div class="group-title"><h3>💼 لوحة الوكيل</h3></div>
+    <div class="gallery">
+      <div class="shot"><a class="frame" href="assets/shots/agent-overview.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/agent-overview.png" alt="لوحة الوكيل" loading="lazy" /></div></a><div class="cap"><b>نظرة عامة للوكيل</b><span>إحصائياته، رابط الإحالة الخاص بنسخة واحدة، وأحدث حجوزاته</span></div></div>
+      <div class="shot"><a class="frame" href="assets/shots/agent-statement.png" target="_blank"><span class="zoom">⤢</span><div class="imgwrap"><img src="assets/shots/agent-statement.png" alt="كشف الحساب" loading="lazy" /></div></a><div class="cap"><b>كشف حساب الوكيل</b><span>الرصيد المستحق، العمولات، رسوم المنصة، والدفعات — بشفافية كاملة</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="flow" class="block">
+  <div class="container">
+    <h2>دورة عمل متكاملة</h2>
+    <p class="sub">من طلب العميل حتى عمولة الوكيل — مع حماية مالية مدمجة</p>
+    <div class="flow">
+      <ol>
+        <li>العميل يتصفح برنامجاً عبر رابط الوكيل <code>?ref=AHMED10</code> ويرسل <b>طلب حجز</b> — يُنسب للوكيل تلقائياً ويصله رقم طلب ورابط متابعة.</li>
+        <li>الوكيل/الإدارة يتابعون الطلب: <b>تواصل</b> ثم <b>تسعير</b> (الوكيل يقف هنا — التأكيد صلاحية إدارية).</li>
+        <li>عند <b>التأكيد</b> (يشترط تحديد السعر) تُنشأ آلياً قيود <b>عمولة الوكيل +</b> و<b>رسوم المنصة −</b> حسب نسبه، <b>مرة واحدة فقط</b> مهما تكررت المحاولة.</li>
+        <li>تُضاف <b>الدفعات</b> و<b>طلبات النقل</b> وتُسند للسائقين — وكل ذلك يظهر للعميل في صفحة رحلته لحظياً.</li>
+        <li>الوكيل يرى أثر كل ذلك في <b>كشف حسابه</b>، والإدارة تسجل دفعاته وتسوياته.</li>
+      </ol>
+      <div class="pill-row">
+        <span class="pill">جديد</span><span class="arrow">←</span>
+        <span class="pill">تم التواصل</span><span class="arrow">←</span>
+        <span class="pill">تم التسعير</span><span class="arrow">←</span>
+        <span class="pill">مؤكد 💰</span><span class="arrow">←</span>
+        <span class="pill">مكتمل</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="try" class="block">
+  <div class="container">
+    <h2>جرّبها بنفسك في ٣ خطوات</h2>
+    <p class="sub">تحتاج Node 20+ و pnpm و PostgreSQL (أو SQLite كبديل موثق في README)</p>
+    <div class="try">
+      <pre><span class="c"># 1) clone + database</span>
+git clone https://github.com/mhwar/khuttar && cd khuttar
+createdb khuttar  <span class="c"># أو اتبع README لإنشاء المستخدم</span>
+
+<span class="c"># 2) setup</span>
+cp .env.example .env
+pnpm install
+pnpm prisma migrate dev
+pnpm db:seed   <span class="c"># بيانات تجريبية كاملة + حسابات الدخول</span>
+
+<span class="c"># 3) run</span>
+pnpm dev       <span class="c"># → http://localhost:3000</span></pre>
+      <div class="creds">
+        <h3>حسابات التجربة</h3>
+        <table>
+          <tr><th>الدور</th><th>البريد</th><th>كلمة المرور</th></tr>
+          <tr><td>الإدارة</td><td><code>admin@khattar.sa</code></td><td rowspan="2"><code>Khattar123!</code></td></tr>
+          <tr><td>وكيل معتمد</td><td><code>agent@khattar.sa</code></td></tr>
+        </table>
+        <p class="hint">
+          ثم جرّب: صفحة رحلة عميل جاهزة <code>/b/KH-CNF005</code> •
+          حجز عبر إحالة الوكيل <code>/programs?ref=AHMED10</code> •
+          برنامج وكيل بانتظار الموافقة في لوحة الإدارة ← البرامج
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="container">
+    منصة خطار للسياحة والسفر — الكود الكامل في
+    <a href="https://github.com/mhwar/khuttar">github.com/mhwar/khuttar</a>
+  </div>
+</footer>
+
+</body>
+</html>
