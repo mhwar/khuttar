@@ -14,6 +14,14 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/**": ["node_modules/pg-cloudflare/**/*"],
   },
+  experimental: {
+    serverActions: {
+      // Next rejects Server Actions when the request Origin differs from
+      // x-forwarded-host (CSRF guard). Behind hosting proxies (Render) the
+      // forwarded host must be explicitly allowed or login/forms 403.
+      allowedOrigins: ["khuttar.onrender.com", "localhost:3000", "localhost:8787"],
+    },
+  },
 };
 
 export default nextConfig;
