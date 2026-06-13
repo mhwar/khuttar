@@ -26,17 +26,17 @@ function CoverImage({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="relative h-48 w-full overflow-hidden">
+    <div className="relative h-52 w-full overflow-hidden">
       {src ? (
         <Image
           src={src}
           alt={alt}
           width={640}
           height={360}
-          className="h-48 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+          className="h-52 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
         />
       ) : (
-        <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-primary/80 to-primary text-primary-foreground transition-transform duration-500 ease-out group-hover:scale-105">
+        <div className="flex h-52 w-full items-center justify-center bg-gradient-to-br from-primary/80 to-primary text-primary-foreground transition-transform duration-500 ease-out group-hover:scale-105">
           {fallbackIcon ?? <MapPinIcon className="size-10" />}
         </div>
       )}
@@ -110,7 +110,7 @@ export function ProgramCard({
           }
         >
           {program.featured && (
-            <span className="absolute end-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+            <span className="absolute end-3 top-3 inline-flex items-center gap-1 rounded-full bg-gold px-2.5 py-1 text-xs font-semibold text-gold-foreground shadow-sm">
               <SparklesIcon className="size-3" />
               {ar.home.popular}
             </span>

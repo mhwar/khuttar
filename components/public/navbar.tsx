@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { MenuIcon, UserIcon } from "lucide-react";
+import { CompassIcon, MenuIcon, UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -27,6 +27,15 @@ const links = [
 export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    function onScroll() {
+      setScrolled(window.scrollY > 12);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const navLinks = (onClick?: () => void) =>
     links.map((link) => {
@@ -40,9 +49,9 @@ export function Navbar() {
           href={link.href}
           onClick={onClick}
           className={cn(
-            "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+            "relative rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active
-              ? "text-primary"
+              ? "text-primary after:absolute after:bottom-0 after:start-3 after:end-3 after:h-0.5 after:rounded-full after:bg-primary"
               : "text-foreground/70 hover:text-foreground",
           )}
         >
@@ -52,15 +61,24 @@ export function Navbar() {
     });
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b bg-background/92 backdrop-blur transition-shadow duration-200",
+        scrolled ? "shadow-sm" : "shadow-none",
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link href="/" className="text-2xl font-extrabold text-primary">
+        <Link href="/" className="inline-flex items-center gap-1.5 text-2xl font-extrabold text-primary">
+          <CompassIcon className="size-5 text-gold" />
           {ar.brand}
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex">{navLinks()}</nav>
 
         <div className="flex items-center gap-2">
+          <Button size="sm" asChild className="hidden lg:inline-flex">
+            <Link href="/programs">{ar.nav.bookNowCta}</Link>
+          </Button>
           <Button variant="outline" size="sm" asChild className="hidden lg:inline-flex">
             <Link href="/login">
               <UserIcon className="size-4" />
@@ -76,17 +94,25 @@ export function Navbar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72">
               <SheetHeader>
-                <SheetTitle className="text-start text-primary">{ar.brand}</SheetTitle>
+                <SheetTitle className="inline-flex items-center gap-1.5 text-start text-primary">
+                  <CompassIcon className="size-4 text-gold" />
+                  {ar.brand}
+                </SheetTitle>
               </SheetHeader>
               <nav className="grid gap-1 px-4">
                 {navLinks(() => setOpen(false))}
-                <Link
-                  href="/login"
-                  onClick={() => setOpen(false)}
-                  className="mt-2 rounded-md border px-3 py-2 text-center text-sm font-medium"
-                >
-                  {ar.nav.login}
-                </Link>
+                <div className="mt-3 grid gap-2 border-t pt-3">
+                  <Button asChild onClick={() => setOpen(false)}>
+                    <Link href="/programs">{ar.nav.bookNowCta}</Link>
+                  </Button>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="rounded-md border px-3 py-2 text-center text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    {ar.nav.login}
+                  </Link>
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
