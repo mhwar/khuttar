@@ -239,6 +239,72 @@ export const ar = {
     approvedByAdmin: "معتمد من الإدارة",
     platformOwned: "برنامج المنصة",
   },
+
+  home: {
+    eyebrow: "منصة سعودية متكاملة للسياحة والدراسة بالخارج",
+    heroTitleFallback: "رحلتك القادمة تبدأ من هنا",
+    heroSubtitleFallback:
+      "برامج سياحية بجداول يومية مدروسة، ودراسة لغة وابتعاث بإجراءات ميسّرة ومتابعة كاملة — من التخطيط حتى العودة.",
+
+    searchTour: "سياحة",
+    searchStudy: "دراسة",
+    searchTypeTour: "نوع الرحلة",
+    searchTypeStudy: "نوع الدراسة",
+    searchDestination: "إلى أين تريد الذهاب؟",
+    searchCta: "اكتشف",
+
+    statDestinations: "وجهة حول العالم",
+    statPrograms: "برنامج جاهز",
+    statCities: "مدينة ومنطقة",
+    statSupport: "متابعة ودعم",
+    statSupportValue: "24/7",
+
+    categoriesTitle: "ماذا تختار اليوم؟",
+    categoriesSubtitle: "أربع تجارب، ونقطة انطلاق واحدة",
+    catDomestic: "رحلات داخلية",
+    catDomesticBody: "اكتشف جمال السعودية بجداول متكاملة",
+    catIntl: "رحلات خارجية",
+    catIntlBody: "وجهات حول العالم يوماً بيوم",
+    catLanguage: "دراسة اللغة",
+    catLanguageBody: "معاهد معتمدة وإقامة منظمة",
+    catUniversity: "جامعات وابتعاث",
+    catUniversityBody: "قبولات جامعية ومنح دراسية",
+
+    howTitle: "كيف يعمل خطار؟",
+    howSubtitle: "ثلاث خطوات تفصلك عن وجهتك القادمة",
+    step1Title: "اختر برنامجك",
+    step1Body: "تصفّح برامجنا واطّلع على الجدول اليومي والأسعار بكل وضوح قبل أن تقرر.",
+    step2Title: "اطلب الحجز",
+    step2Body: "أرسل طلبك، يتواصل معك فريقنا لتأكيد التفاصيل والتسعير المناسب لك.",
+    step3Title: "عِش التجربة",
+    step3Body: "تابع رحلتك عبر رابط خاص: الجدول، السائق، والمدفوعات أولاً بأول.",
+
+    studyBandTitle: "رحلتك الدراسية بالخارج، بدون تعقيد",
+    studyBandBody:
+      "من أول مستند إلى أول يوم دراسي — نرافقك في كل مرحلة ونبقيك على اطلاع دائم بتقدّم ملفك.",
+    studyBandCta: "ابدأ رحلة الدراسة",
+
+    scheduleTitle: "كل برنامج بجدول يومي مفصّل",
+    scheduleBody:
+      "لا مفاجآت: تعرف وجهتك ساعةً بساعة — أنشطة، تنقّلات، فنادق ووجبات، مرتّبة يوماً بيوم.",
+
+    sectionDestinationsSubtitle: "وجهات مختارة بعناية لتجربة لا تُنسى",
+    sectionToursSubtitle: "جولات داخلية وخارجية بجداول يومية كاملة",
+    sectionStudySubtitle: "لغة، جامعات وابتعاث مع تسهيل إجراءات القبول",
+    viewAll: "عرض الكل",
+    viewDetails: "اكتشف البرنامج",
+    exploreDestination: "استكشف الوجهة",
+    popular: "الأكثر طلباً",
+
+    testimonialsSubtitle: "تجارب حقيقية من عملاء خطار",
+    customerRating: "تقييم عملائنا",
+
+    finalCtaTitle: "جاهز لوجهتك القادمة؟",
+    finalCtaBody:
+      "فريق خطار جاهز لمساعدتك في اختيار الوجهة أو البرنامج الأنسب لك. ابدأ الآن وخطّط رحلة تستحقها.",
+    finalCtaBrowse: "تصفّح البرامج",
+    finalCtaContact: "تواصل معنا",
+  },
 } as const;
 
 export type Dictionary = typeof ar;
