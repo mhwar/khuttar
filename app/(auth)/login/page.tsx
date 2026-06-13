@@ -1,20 +1,19 @@
-"use client";
-
-import { useActionState } from "react";
 import Link from "next/link";
-import { login } from "@/lib/actions/auth";
-import type { ActionState } from "@/lib/forms";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Field } from "@/components/shared/field";
-import { SubmitButton } from "@/components/shared/submit-button";
+import { Label } from "@/components/ui/label";
 import { ar } from "@/lib/i18n/ar";
 
-const initialState: ActionState = { ok: false };
-
-export default function LoginPage() {
-  const [state, formAction] = useActionState(login, initialState);
+// Native form POST to a Route Handler (not a Server Action): the handler sets
+// the session cookie on its redirect response, which persists reliably behind
+// the hosting proxy. No client JS required to log in.
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
@@ -23,13 +22,12 @@ export default function LoginPage() {
           <Link href="/" className="text-3xl font-extrabold text-primary">
             {ar.brand}
           </Link>
-          <CardTitle className="text-lg font-semibold">
-            {ar.nav.login}
-          </CardTitle>
+          <CardTitle className="text-lg font-semibold">{ar.nav.login}</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={formAction} className="grid gap-4">
-            <Field label={ar.fields.email} htmlFor="email">
+          <form method="POST" action="/api/auth/login" className="grid gap-4">
+            <div className="grid gap-1.5">
+              <Label htmlFor="email">{ar.fields.email}</Label>
               <Input
                 id="email"
                 name="email"
@@ -38,8 +36,9 @@ export default function LoginPage() {
                 autoComplete="email"
                 required
               />
-            </Field>
-            <Field label={ar.fields.password} htmlFor="password">
+            </div>
+            <div className="grid gap-1.5">
+              <Label htmlFor="password">{ar.fields.password}</Label>
               <Input
                 id="password"
                 name="password"
@@ -48,13 +47,19 @@ export default function LoginPage() {
                 autoComplete="current-password"
                 required
               />
-            </Field>
-            {state.error && (
-              <p className="text-sm text-destructive">{state.error}</p>
+            </div>
+            {error && (
+              <p className="text-sm text-destructive">
+                {ar.misc.invalidCredentials}
+              </p>
             )}
-            <SubmitButton className="w-full">{ar.actions.login}</SubmitButton>
+            <Button type="submit" className="w-full">
+              {ar.actions.login}
+            </Button>
             <Button variant="link" asChild className="text-muted-foreground">
-              <Link href="/">{ar.actions.back} {ar.nav.home}</Link>
+              <Link href="/">
+                {ar.actions.back} {ar.nav.home}
+              </Link>
             </Button>
           </form>
         </CardContent>
