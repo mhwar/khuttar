@@ -127,10 +127,10 @@ export default async function HomePage() {
   ];
 
   const categories = [
-    { icon: CompassIcon, title: ar.home.catDomestic, body: ar.home.catDomesticBody, href: "/programs?type=DOMESTIC" },
-    { icon: PlaneIcon, title: ar.home.catIntl, body: ar.home.catIntlBody, href: "/programs?type=INTERNATIONAL" },
-    { icon: LanguagesIcon, title: ar.home.catLanguage, body: ar.home.catLanguageBody, href: "/study?kind=LANGUAGE" },
-    { icon: GraduationCapIcon, title: ar.home.catUniversity, body: ar.home.catUniversityBody, href: "/study?kind=UNIVERSITY" },
+    { icon: CompassIcon, title: ar.home.catDomestic, body: ar.home.catDomesticBody, href: "/programs?type=DOMESTIC", gradient: "from-teal-600 to-teal-800" },
+    { icon: PlaneIcon, title: ar.home.catIntl, body: ar.home.catIntlBody, href: "/programs?type=INTERNATIONAL", gradient: "from-primary to-blue-900" },
+    { icon: LanguagesIcon, title: ar.home.catLanguage, body: ar.home.catLanguageBody, href: "/study?kind=LANGUAGE", gradient: "from-amber-600 to-orange-700" },
+    { icon: GraduationCapIcon, title: ar.home.catUniversity, body: ar.home.catUniversityBody, href: "/study?kind=UNIVERSITY", gradient: "from-indigo-600 to-purple-800" },
   ];
 
   const steps = [
@@ -156,27 +156,27 @@ export default async function HomePage() {
   return (
     <>
       {/* ── Hero ───────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-bl from-primary via-primary/95 to-teal-900 text-primary-foreground">
+      <section className="relative flex min-h-[88svh] flex-col justify-center overflow-hidden bg-gradient-to-bl from-primary via-primary/95 to-teal-900 text-primary-foreground">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-24 -start-24 size-96 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-32 -end-16 size-96 rounded-full bg-teal-400/20 blur-3xl" />
-          <div className="absolute top-1/3 start-1/2 size-72 rounded-full bg-emerald-300/10 blur-3xl" />
+          <div className="absolute -top-24 -start-24 size-[32rem] rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-32 -end-16 size-[32rem] rounded-full bg-teal-400/20 blur-3xl" />
+          <div className="absolute top-1/3 start-1/2 size-96 rounded-full bg-emerald-300/10 blur-3xl" />
         </div>
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(circle_at_center,white_1px,transparent_1px)] [background-size:26px_26px]"
+          className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:radial-gradient(circle_at_center,white_1px,transparent_1px)] [background-size:26px_26px]"
         />
 
-        <div className="relative mx-auto grid max-w-6xl gap-8 px-4 pb-28 pt-20 sm:pt-24">
-          <div className="grid gap-5 text-center">
+        <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-4 pb-20 pt-24 sm:pt-28">
+          <div className="grid gap-6 text-center">
             <span className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm font-medium backdrop-blur">
               <SparklesIcon className="size-4" />
               {ar.home.eyebrow}
             </span>
-            <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-[1.15] sm:text-5xl lg:text-6xl">
+            <h1 className="mx-auto max-w-4xl text-5xl font-black leading-[1.08] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
               {settings.heroTitle ?? ar.home.heroTitleFallback}
             </h1>
-            <p className="mx-auto max-w-2xl text-lg text-primary-foreground/85">
+            <p className="mx-auto max-w-2xl text-lg text-primary-foreground/80 sm:text-xl">
               {settings.heroSubtitle ?? ar.home.heroSubtitleFallback}
             </p>
           </div>
@@ -235,16 +235,16 @@ export default async function HomePage() {
             <Link
               key={cat.href}
               href={cat.href}
-              className="group relative overflow-hidden rounded-2xl border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
+              className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${cat.gradient} p-6 text-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl`}
             >
-              <div className="absolute -end-8 -top-8 size-28 rounded-full bg-primary/5 transition-transform duration-500 group-hover:scale-150" />
+              <div className="absolute -end-6 -top-6 size-28 rounded-full bg-white/10 transition-transform duration-500 group-hover:scale-125" />
               <div className="relative grid gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-white/20">
                   <cat.icon className="size-6" />
                 </div>
                 <p className="font-bold">{cat.title}</p>
-                <p className="text-sm text-muted-foreground">{cat.body}</p>
-                <span className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                <p className="text-sm text-white/80">{cat.body}</p>
+                <span className="inline-flex items-center gap-1 text-sm font-semibold text-white/90">
                   {ar.actions.moreDetails}
                   <ArrowLeftIcon className="size-4 transition-transform group-hover:-translate-x-1" />
                 </span>
@@ -279,9 +279,15 @@ export default async function HomePage() {
               subtitle={ar.home.sectionDestinationsSubtitle}
               href="/destinations"
             />
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {featuredDestinations.map((destination) => (
-                <DestinationCard key={destination.id} destination={destination} />
+            {/* Mosaic grid: first card spans 2 cols + 2 rows on large screens */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:grid-rows-2">
+              {featuredDestinations.slice(0, 7).map((destination, i) => (
+                <div
+                  key={destination.id}
+                  className={i === 0 ? "col-span-2 row-span-2 lg:col-span-2 lg:row-span-2" : ""}
+                >
+                  <DestinationCard destination={destination} />
+                </div>
               ))}
             </div>
           </div>
@@ -391,16 +397,16 @@ export default async function HomePage() {
           {steps.map((step, index) => (
             <div
               key={step.title}
-              className="relative grid gap-3 rounded-2xl border bg-card p-6 text-center"
+              className="relative overflow-hidden grid gap-3 rounded-2xl border bg-card p-6 text-center"
             >
-              <span className="absolute end-4 top-4 text-4xl font-extrabold text-primary/10">
+              <span className="absolute end-3 top-0 text-[7rem] font-black leading-none text-primary/5 select-none pointer-events-none">
                 {index + 1}
               </span>
-              <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <div className="relative mx-auto flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <step.icon className="size-7" />
               </div>
-              <p className="font-bold">{step.title}</p>
-              <p className="text-sm text-muted-foreground">{step.body}</p>
+              <p className="relative font-bold">{step.title}</p>
+              <p className="relative text-sm text-muted-foreground">{step.body}</p>
             </div>
           ))}
         </div>
