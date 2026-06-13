@@ -1,6 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { CalendarDaysIcon, GraduationCapIcon, MapPinIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  CalendarDaysIcon,
+  GraduationCapIcon,
+  MapPinIcon,
+  SparklesIcon,
+} from "lucide-react";
 import { labelOf } from "@/lib/constants";
 import { formatSAR } from "@/lib/format";
 import { ar } from "@/lib/i18n/ar";
@@ -12,42 +18,68 @@ function CoverImage({
   src,
   alt,
   fallbackIcon,
+  children,
 }: {
   src: string | null;
   alt: string;
   fallbackIcon?: React.ReactNode;
+  children?: React.ReactNode;
 }) {
-  if (src) {
-    return (
-      <Image
-        src={src}
-        alt={alt}
-        width={640}
-        height={360}
-        className="h-44 w-full object-cover"
-      />
-    );
-  }
   return (
-    <div className="flex h-44 w-full items-center justify-center bg-gradient-to-br from-primary/80 to-primary text-primary-foreground">
-      {fallbackIcon ?? <MapPinIcon className="size-10" />}
+    <div className="relative h-48 w-full overflow-hidden">
+      {src ? (
+        <Image
+          src={src}
+          alt={alt}
+          width={640}
+          height={360}
+          className="h-48 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-primary/80 to-primary text-primary-foreground transition-transform duration-500 ease-out group-hover:scale-105">
+          {fallbackIcon ?? <MapPinIcon className="size-10" />}
+        </div>
+      )}
+      {children}
     </div>
+  );
+}
+
+// Small translucent chip overlaid on the cover image.
+function CoverChip({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <span
+      className={`absolute inline-flex items-center gap-1 rounded-full bg-background/85 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm backdrop-blur ${className ?? ""}`}
+    >
+      {children}
+    </span>
   );
 }
 
 export function DestinationCard({ destination }: { destination: Destination }) {
   return (
     <Link href={`/destinations/${destination.slug}`} className="group">
-      <Card className="overflow-hidden py-0 transition-shadow group-hover:shadow-md">
-        <CoverImage src={destination.image} alt={destination.name} />
-        <CardContent className="pb-4">
+      <Card className="h-full gap-0 overflow-hidden py-0 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-primary/5 group-hover:ring-1 group-hover:ring-primary/20">
+        <CoverImage src={destination.image} alt={destination.name}>
+          <CoverChip className="end-3 top-3">
+            {labelOf("destinationType", destination.type)}
+          </CoverChip>
+        </CoverImage>
+        <CardContent className="grid gap-1 p-4">
           <div className="flex items-center justify-between gap-2">
             <p className="font-bold">{destination.name}</p>
-            <Badge variant="secondary">
-              {labelOf("destinationType", destination.type)}
-            </Badge>
+            <span className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
+              {ar.home.exploreDestination}
+              <ArrowLeftIcon className="size-4" />
+            </span>
           </div>
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <p className="line-clamp-2 text-sm text-muted-foreground">
             {destination.description}
           </p>
         </CardContent>
@@ -65,66 +97,85 @@ export function ProgramCard({
 }) {
   const isStudy = program.category === "STUDY";
   const href = `${isStudy ? "/study" : "/programs"}/${program.slug}${refCode ? `?ref=${refCode}` : ""}`;
+  const price = program.basePrice ?? program.tuitionMin;
 
   return (
     <Link href={href} className="group">
-      <Card className="overflow-hidden py-0 transition-shadow group-hover:shadow-md">
+      <Card className="h-full gap-0 overflow-hidden py-0 transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:shadow-primary/5 group-hover:ring-1 group-hover:ring-primary/20">
         <CoverImage
           src={program.coverImage}
           alt={program.title}
           fallbackIcon={
             isStudy ? <GraduationCapIcon className="size-10" /> : undefined
           }
-        />
-        <CardContent className="grid gap-2 pb-4">
+        >
+          {program.featured && (
+            <span className="absolute end-3 top-3 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground shadow-sm">
+              <SparklesIcon className="size-3" />
+              {ar.home.popular}
+            </span>
+          )}
+          {!isStudy && program.durationDays ? (
+            <CoverChip className="bottom-3 start-3">
+              <CalendarDaysIcon className="size-3.5 text-primary" />
+              {program.durationDays} {ar.misc.days}
+            </CoverChip>
+          ) : null}
+          {isStudy && program.durationWeeks ? (
+            <CoverChip className="bottom-3 start-3">
+              <CalendarDaysIcon className="size-3.5 text-primary" />
+              {program.durationWeeks} {ar.misc.weeks}
+            </CoverChip>
+          ) : null}
+        </CoverImage>
+
+        <CardContent className="grid gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
-            <p className="font-bold leading-snug">{program.title}</p>
-            {isStudy ? (
-              <Badge variant="secondary">
-                {labelOf("studyKind", program.studyKind)}
-              </Badge>
-            ) : (
-              <Badge variant="secondary">
-                {labelOf("tourType", program.tourType)}
-              </Badge>
-            )}
+            <p className="line-clamp-1 font-bold leading-snug">{program.title}</p>
+            <Badge variant="secondary" className="shrink-0">
+              {isStudy
+                ? labelOf("studyKind", program.studyKind)
+                : labelOf("tourType", program.tourType)}
+            </Badge>
           </div>
+
           {program.summary && (
             <p className="line-clamp-2 text-sm text-muted-foreground">
               {program.summary}
             </p>
           )}
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            {program.destination && (
-              <span className="flex items-center gap-1">
-                <MapPinIcon className="size-3.5" />
-                {program.destination.name}
-              </span>
-            )}
-            {!isStudy && program.durationDays && (
-              <span className="flex items-center gap-1">
-                <CalendarDaysIcon className="size-3.5" />
-                {program.durationDays} {ar.misc.days}
-              </span>
-            )}
-            {isStudy && program.durationWeeks && (
-              <span className="flex items-center gap-1">
-                <CalendarDaysIcon className="size-3.5" />
-                {program.durationWeeks} {ar.misc.weeks}
-              </span>
-            )}
-          </div>
-          {(program.basePrice ?? program.tuitionMin) && (
-            <p className="text-sm">
-              <span className="text-muted-foreground">{ar.misc.startingFrom} </span>
-              <span className="font-bold text-primary">
-                {formatSAR(program.basePrice ?? program.tuitionMin)}
-              </span>
-              {!isStudy && (
-                <span className="text-xs text-muted-foreground"> {ar.misc.perPerson}</span>
-              )}
-            </p>
+
+          {program.destination && (
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
+              <MapPinIcon className="size-3.5" />
+              {program.destination.name}
+            </span>
           )}
+
+          <div className="mt-1 flex items-end justify-between border-t pt-3">
+            {price ? (
+              <p className="leading-tight">
+                <span className="block text-xs text-muted-foreground">
+                  {ar.misc.startingFrom}
+                </span>
+                <span className="text-lg font-bold text-primary">
+                  {formatSAR(price)}
+                </span>
+                {!isStudy && (
+                  <span className="text-xs text-muted-foreground">
+                    {" "}
+                    {ar.misc.perPerson}
+                  </span>
+                )}
+              </p>
+            ) : (
+              <span />
+            )}
+            <span className="inline-flex items-center gap-1 text-sm font-medium text-primary transition-transform group-hover:-translate-x-1">
+              {ar.home.viewDetails}
+              <ArrowLeftIcon className="size-4" />
+            </span>
+          </div>
         </CardContent>
       </Card>
     </Link>
