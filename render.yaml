@@ -21,7 +21,7 @@ services:
     buildCommand: corepack enable && pnpm install --prod=false --no-frozen-lockfile && pnpm prisma generate && pnpm build
     # الهجرات وseed الإدارة تُشغَّل عند الإقلاع (القاعدة الداخلية متاحة وقت التشغيل،
     # وهذا يعمل على الخطة المجانية بخلاف preDeployCommand المدفوعة). كلاهما idempotent.
-    startCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts && export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
+    startCommand: pnpm prisma migrate deploy && pnpm tsx prisma/seed-prod.ts && pnpm tsx prisma/seed-destinations.ts && export NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL:-$RENDER_EXTERNAL_URL}" && pnpm start
     healthCheckPath: /
     envVars:
       - key: NODE_VERSION
