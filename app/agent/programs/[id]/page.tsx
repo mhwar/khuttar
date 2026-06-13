@@ -53,6 +53,7 @@ export default async function AgentEditProgramPage({
         value={program}
         destinations={destinations}
         isAdmin={false}
+        canStudy={profile.allowStudyPrograms}
         backTo="/agent/programs"
       />
     </>

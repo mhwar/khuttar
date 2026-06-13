@@ -30,11 +30,13 @@ export function ProgramForm({
   value,
   destinations,
   isAdmin,
+  canStudy,
   backTo,
 }: {
   value?: Program;
   destinations: { id: string; name: string }[];
   isAdmin: boolean;
+  canStudy?: boolean;
   backTo: string;
 }) {
   const router = useRouter();
@@ -60,7 +62,13 @@ export function ProgramForm({
               <TabsTrigger value="TOUR" disabled={!!value && value.category !== "TOUR"}>
                 {LABELS.programCategory.TOUR}
               </TabsTrigger>
-              <TabsTrigger value="STUDY" disabled={!!value && value.category !== "STUDY"}>
+              <TabsTrigger
+                value="STUDY"
+                disabled={
+                  (!isAdmin && !canStudy) ||
+                  (!!value && value.category !== "STUDY")
+                }
+              >
                 {LABELS.programCategory.STUDY}
               </TabsTrigger>
             </TabsList>

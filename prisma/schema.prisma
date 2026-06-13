@@ -50,9 +50,10 @@ model AgentProfile {
   city            String?
   commissionRate  Float    @default(10) // % of totalPrice credited on CONFIRMED
   platformFeeRate Float    @default(5) // % of totalPrice debited on CONFIRMED
-  status          String   @default("PENDING") // PENDING | APPROVED | SUSPENDED
-  notes           String?
-  createdAt       DateTime @default(now())
+  status               String   @default("PENDING") // PENDING | APPROVED | SUSPENDED
+  allowStudyPrograms   Boolean  @default(false)
+  notes                String?
+  createdAt            DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   programs      Program[]

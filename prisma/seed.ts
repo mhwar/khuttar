@@ -794,6 +794,73 @@ async function main() {
     },
   });
 
+  await db.program.create({
+    data: {
+      slug: "edinburgh-english-8w",
+      title: "دورة اللغة الإنجليزية — إدنبرة",
+      category: "STUDY",
+      summary: "٨ أسابيع في قلب إدنبرة التاريخية مع معهد ESE Edinburgh.",
+      description:
+        "برنامج لغة إنجليزية مكثف (٢٠ حصة أسبوعياً) في عاصمة اسكتلندا، يجمع بين الدراسة واستكشاف التراث الأوروبي. يناسب المستويات من المبتدئ حتى المتقدم مع اختبار تحديد مستوى عند الوصول.",
+      coverImage: "/images/edinburgh.svg",
+      status: "PUBLISHED",
+      visibility: "PUBLIC",
+      isApproved: true,
+      featured: true,
+      destinationId: edinburgh.id,
+      studyKind: "LANGUAGE",
+      institute: "ESE Edinburgh",
+      studyCity: "إدنبرة",
+      durationWeeks: 8,
+      tuitionMin: 14000,
+      tuitionMax: 19000,
+      basePrice: 16000,
+      requirements: ["جواز سفر ساري المفعول", "كشف حساب بنكي", "تعبئة نموذج التسجيل"].join("\n"),
+      servicesIncluded: [
+        "خطاب القبول من المعهد",
+        "دعم ملف التأشيرة البريطانية",
+        "حجز السكن (عائلة مضيفة أو سكن مشترك)",
+        "الاستقبال من مطار إدنبرة",
+        "متابعة أسبوعية طوال مدة الدراسة",
+        "شهادة إتمام معتمدة",
+      ].join("\n"),
+    },
+  });
+
+  await db.program.create({
+    data: {
+      slug: "canada-scholarship-2026",
+      title: "ابتعاث كندا 2026 — بكالوريوس وماجستير",
+      category: "STUDY",
+      summary: "مسار متكامل للابتعاث الحكومي والذاتي في الجامعات الكندية.",
+      description:
+        "نقدم مسارين: الابتعاث الحكومي (خادم الحرمين) والتسجيل الذاتي في جامعات كندية معترف بها. يشمل البرنامج تقييم الملف الأكاديمي، اختيار الجامعة، تجهيز طلبات القبول، دعم قبول اللغة (IELTS/TOEFL)، والتأشيرة الدراسية.",
+      coverImage: "/images/canada.svg",
+      status: "PUBLISHED",
+      visibility: "PUBLIC",
+      isApproved: true,
+      studyKind: "SCHOLARSHIP",
+      studyCity: "تورنتو / فانكوفر / أوتاوا",
+      durationWeeks: 156,
+      tuitionMin: 60000,
+      tuitionMax: 150000,
+      requirements: [
+        "شهادة ثانوية أو بكالوريوس (حسب المرحلة)",
+        "معدل جيد جداً فأعلى",
+        "شهادة لغة IELTS 6.0 أو ما يعادلها",
+        "جواز سفر ساري لمدة ٥ سنوات",
+      ].join("\n"),
+      servicesIncluded: [
+        "تقييم الملف الأكاديمي مجاناً",
+        "اختيار الجامعة والتخصص",
+        "تجهيز ٣ طلبات قبول",
+        "دعم ملف التأشيرة الدراسية (Student Visa)",
+        "التنسيق مع مكتب الابتعاث (إن وُجد)",
+        "متابعة القبول حتى الوصول",
+      ].join("\n"),
+    },
+  });
+
   // ── Providers & drivers ───────────────────────────────────────
   const masarTransport = await db.serviceProvider.create({
     data: {

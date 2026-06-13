@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { zEnum } from "@/lib/constants";
 import {
+  checkbox,
   optionalText,
   parseForm,
   requiredEmail,
@@ -95,6 +96,7 @@ const updateAgentSchema = z.object({
   city: optionalText,
   phone: text(9),
   notes: optionalText,
+  allowStudyPrograms: checkbox,
 });
 
 export async function updateAgent(

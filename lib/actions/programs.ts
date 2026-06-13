@@ -85,13 +85,17 @@ export async function saveProgram(
 
   const isAdmin = user.role === "ADMIN";
   let agentProfileId: string | null = null;
-  if (!isAdmin) {
-    const { profile } = await requireApprovedAgent();
-    agentProfileId = profile.id;
-  }
 
   const parsed = parseForm(programSchema, formData);
   if (!parsed.success) return parsed.state;
+
+  if (!isAdmin) {
+    const { profile } = await requireApprovedAgent();
+    agentProfileId = profile.id;
+    if (parsed.data.category === "STUDY" && !profile.allowStudyPrograms) {
+      return { ok: false, error: "غير مصرح لك بإنشاء البرامج الدراسية" };
+    }
+  }
   const { id, slug: slugInput, featured, ...data } = parsed.data;
 
   // Tour/study cross-cleanup so a category switch never leaves stale fields.

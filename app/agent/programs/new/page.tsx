@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ProgramForm } from "@/components/admin/program-form";
 
 export default async function AgentNewProgramPage() {
-  await requireAgent();
+  const { profile } = await requireAgent();
   const destinations = await db.destination.findMany({
     where: { active: true },
     orderBy: { sortOrder: "asc" },
@@ -20,6 +20,7 @@ export default async function AgentNewProgramPage() {
       <ProgramForm
         destinations={destinations}
         isAdmin={false}
+        canStudy={profile.allowStudyPrograms}
         backTo="/agent/programs"
       />
     </>
