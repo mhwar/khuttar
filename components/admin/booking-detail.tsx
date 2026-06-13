@@ -10,7 +10,20 @@ import {
   assignTransfer,
   setTransferStatus,
 } from "@/lib/actions/transfers";
-import { LABELS, PAYMENT_METHODS, labelOf } from "@/lib/constants";
+import { postStaffMessage } from "@/lib/actions/messages";
+import {
+  saveMilestone,
+  setMilestoneStatus,
+  deleteMilestone,
+  seedDefaultStudyMilestones,
+} from "@/lib/actions/milestones";
+import {
+  LABELS,
+  MILESTONE_STATUSES,
+  MILESTONE_STATUS_VARIANTS,
+  PAYMENT_METHODS,
+  labelOf,
+} from "@/lib/constants";
 import { formatDate, formatDateTime, formatSAR, toInputDate } from "@/lib/format";
 import { ar } from "@/lib/i18n/ar";
 import { BookingStatusBadge, EmptyState } from "@/components/shared/misc";
@@ -39,6 +52,7 @@ export type BookingDetail = Prisma.BookingRequestGetPayload<{
   include: {
     program: { select: { slug: true; category: true } };
     agent: { include: { user: { select: { name: true } } } };
+    managerAgent: { include: { user: { select: { name: true } } } };
     assignedTo: { select: { name: true } };
     payments: { include: { recordedBy: { select: { name: true } } } };
     transfers: {
@@ -47,6 +61,8 @@ export type BookingDetail = Prisma.BookingRequestGetPayload<{
         provider: { select: { name: true } };
       };
     };
+    messages: true;
+    milestones: true;
   };
 }>;
 
@@ -429,6 +445,190 @@ export function BookingDetailView({
             )}
           </CardContent>
         </Card>
+
+        {/* Milestones (program progress — primarily for STUDY bookings) */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <CardTitle>{ar.booking.milestones}</CardTitle>
+            <div className="flex gap-2">
+              {booking.milestones.length === 0 &&
+                booking.program?.category === "STUDY" && (
+                  <ActionButton
+                    action={seedDefaultStudyMilestones.bind(null, booking.id)}
+                    size="sm"
+                    variant="outline"
+                  >
+                    {ar.booking.addDefaultMilestones}
+                  </ActionButton>
+                )}
+              <FormDialog
+                title={ar.booking.milestones}
+                action={saveMilestone}
+                trigger={
+                  <Button size="sm" variant="outline">
+                    <PlusIcon className="size-4" />
+                    {ar.actions.create}
+                  </Button>
+                }
+              >
+                <input type="hidden" name="bookingId" value={booking.id} />
+                <Field label={ar.booking.milestoneTitle} name="title">
+                  <Input name="title" required />
+                </Field>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label={ar.fields.status} name="status">
+                    <NativeSelect name="status" defaultValue="PENDING">
+                      {enumOptions(MILESTONE_STATUSES, LABELS.milestoneStatus)}
+                    </NativeSelect>
+                  </Field>
+                  <Field label={ar.fields.date} name="dueDate">
+                    <Input name="dueDate" type="date" dir="ltr" />
+                  </Field>
+                </div>
+                <Field label={ar.fields.notes} name="note">
+                  <Textarea name="note" rows={2} />
+                </Field>
+              </FormDialog>
+            </div>
+          </CardHeader>
+          <CardContent className="grid gap-3">
+            {booking.milestones.length === 0 ? (
+              <EmptyState message="لا توجد مراحل بعد" />
+            ) : (
+              booking.milestones.map((milestone) => (
+                <div
+                  key={milestone.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+                >
+                  <div className="grid gap-1">
+                    <div className="flex flex-wrap items-center gap-2 text-sm font-medium">
+                      <span>{milestone.title}</span>
+                      <Badge
+                        variant={
+                          MILESTONE_STATUS_VARIANTS[
+                            milestone.status as keyof typeof MILESTONE_STATUS_VARIANTS
+                          ] ?? "outline"
+                        }
+                      >
+                        {labelOf("milestoneStatus", milestone.status)}
+                      </Badge>
+                    </div>
+                    {milestone.note && (
+                      <p className="text-xs text-muted-foreground">
+                        {milestone.note}
+                      </p>
+                    )}
+                    {milestone.dueDate && (
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(milestone.dueDate)}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    {milestone.status !== "DONE" && (
+                      <ActionButton
+                        action={setMilestoneStatus.bind(
+                          null,
+                          milestone.id,
+                          "DONE",
+                        )}
+                        size="sm"
+                        variant="ghost"
+                      >
+                        {LABELS.milestoneStatus.DONE}
+                      </ActionButton>
+                    )}
+                    <FormDialog
+                      title={ar.actions.edit}
+                      action={saveMilestone}
+                      trigger={
+                        <Button size="sm" variant="ghost">
+                          {ar.actions.edit}
+                        </Button>
+                      }
+                    >
+                      <input type="hidden" name="bookingId" value={booking.id} />
+                      <input type="hidden" name="id" value={milestone.id} />
+                      <Field label={ar.booking.milestoneTitle} name="title">
+                        <Input name="title" defaultValue={milestone.title} required />
+                      </Field>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <Field label={ar.fields.status} name="status">
+                          <NativeSelect
+                            name="status"
+                            defaultValue={milestone.status}
+                          >
+                            {enumOptions(MILESTONE_STATUSES, LABELS.milestoneStatus)}
+                          </NativeSelect>
+                        </Field>
+                        <Field label={ar.fields.date} name="dueDate">
+                          <Input
+                            name="dueDate"
+                            type="date"
+                            dir="ltr"
+                            defaultValue={toInputDate(milestone.dueDate)}
+                          />
+                        </Field>
+                      </div>
+                      <Field label={ar.fields.notes} name="note">
+                        <Textarea
+                          name="note"
+                          rows={2}
+                          defaultValue={milestone.note ?? ""}
+                        />
+                      </Field>
+                    </FormDialog>
+                    <ConfirmDeleteButton
+                      action={deleteMilestone.bind(null, milestone.id)}
+                    />
+                  </div>
+                </div>
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Customer ↔ staff message thread */}
+        <Card>
+          <CardHeader>
+            <CardTitle>{ar.booking.messages}</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            {booking.messages.length === 0 ? (
+              <EmptyState message={ar.booking.noMessages} />
+            ) : (
+              <div className="grid gap-3">
+                {booking.messages.map((m) => {
+                  const isCustomer = m.authorRole === "CUSTOMER";
+                  return (
+                    <div
+                      key={m.id}
+                      className={`flex flex-col gap-1 ${isCustomer ? "items-start" : "items-end"}`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${isCustomer ? "bg-muted" : "bg-primary text-primary-foreground"}`}
+                      >
+                        {m.body}
+                      </div>
+                      <span className="px-1 text-[11px] text-muted-foreground">
+                        {m.authorName} • {formatDateTime(m.createdAt)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <ActionForm action={postStaffMessage} className="grid gap-2">
+              <input type="hidden" name="bookingId" value={booking.id} />
+              <Field label={ar.booking.messages} name="body">
+                <Textarea name="body" rows={2} required placeholder={ar.booking.writeMessage} />
+              </Field>
+              <SubmitButton className="justify-self-end">
+                {ar.actions.send}
+              </SubmitButton>
+            </ActionForm>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid content-start gap-6">
@@ -486,6 +686,24 @@ export function BookingDetailView({
                       id="agentId"
                       name="agentId"
                       defaultValue={booking.agentId ?? ""}
+                    >
+                      <option value="">{ar.misc.none}</option>
+                      {agents.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </NativeSelect>
+                  </Field>
+                  <Field
+                    label={ar.fields.managerAgent}
+                    htmlFor="managerAgentId"
+                    hint="وكيل يدير هذا الحجز نيابة عن المنصة (بنسبة عمولة الإدارة)"
+                  >
+                    <NativeSelect
+                      id="managerAgentId"
+                      name="managerAgentId"
+                      defaultValue={booking.managerAgentId ?? ""}
                     >
                       <option value="">{ar.misc.none}</option>
                       {agents.map((a) => (

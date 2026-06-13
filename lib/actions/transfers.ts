@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { getCurrentUser, requireAdmin, requireApprovedAgent } from "@/lib/auth";
+import { bookingAgentAccess } from "@/lib/booking-access";
 import { zEnum } from "@/lib/constants";
 import {
   optionalInt,
@@ -57,7 +58,9 @@ export async function saveTransfer(
   const isAdmin = user.role === "ADMIN";
   if (!isAdmin) {
     const { profile } = await requireApprovedAgent();
-    if (booking.agentId !== profile.id) return { ok: false, error: "غير مصرح" };
+    if (!bookingAgentAccess(booking, profile.id)) {
+      return { ok: false, error: "غير مصرح" };
+    }
   }
 
   // Assignment fields are admin-only; agent submissions stay REQUESTED.
@@ -150,7 +153,7 @@ export async function deleteTransfer(transferId: string) {
 
   if (user.role === "AGENT") {
     const { profile } = await requireApprovedAgent();
-    if (transfer.booking.agentId !== profile.id || transfer.status !== "REQUESTED") {
+    if (!bookingAgentAccess(transfer.booking, profile.id) || transfer.status !== "REQUESTED") {
       return { ok: false, error: "غير مصرح" };
     }
   }

@@ -22,6 +22,7 @@ export default async function AdminBookingDetailPage({
       include: {
         program: { select: { slug: true, category: true } },
         agent: { include: { user: { select: { name: true } } } },
+        managerAgent: { include: { user: { select: { name: true } } } },
         assignedTo: { select: { name: true } },
         payments: {
           orderBy: { paidAt: "desc" },
@@ -31,6 +32,8 @@ export default async function AdminBookingDetailPage({
           orderBy: { date: "asc" },
           include: { driver: true, provider: { select: { name: true } } },
         },
+        messages: { orderBy: { createdAt: "asc" } },
+        milestones: { orderBy: { sortOrder: "asc" } },
       },
     }),
     db.driver.findMany({

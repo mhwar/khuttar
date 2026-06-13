@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowRightIcon } from "lucide-react";
 import { db } from "@/lib/db";
 import { requireAgent } from "@/lib/auth";
+import { bookingAgentAccess } from "@/lib/booking-access";
 import { ar } from "@/lib/i18n/ar";
 import { PageHeader } from "@/components/shared/page-header";
 import { BookingDetailView } from "@/components/admin/booking-detail";
@@ -21,6 +22,7 @@ export default async function AgentBookingDetailPage({
     include: {
       program: { select: { slug: true, category: true } },
       agent: { include: { user: { select: { name: true } } } },
+      managerAgent: { include: { user: { select: { name: true } } } },
       assignedTo: { select: { name: true } },
       payments: {
         orderBy: { paidAt: "desc" },
@@ -30,10 +32,12 @@ export default async function AgentBookingDetailPage({
         orderBy: { date: "asc" },
         include: { driver: true, provider: { select: { name: true } } },
       },
+      messages: { orderBy: { createdAt: "asc" } },
+      milestones: { orderBy: { sortOrder: "asc" } },
     },
   });
-  // Agents can only open bookings attributed to them.
-  if (!booking || booking.agentId !== profile.id) notFound();
+  // Agents can only open bookings they own or manage.
+  if (!booking || !bookingAgentAccess(booking, profile.id)) notFound();
 
   return (
     <>

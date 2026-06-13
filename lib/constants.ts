@@ -62,10 +62,24 @@ export const LEDGER_TYPES = [
   "PAYOUT",
   "ADJUSTMENT",
 ] as const;
+export const MESSAGE_AUTHOR_ROLES = ["CUSTOMER", "AGENT", "ADMIN"] as const;
+export const MILESTONE_STATUSES = ["PENDING", "IN_PROGRESS", "DONE"] as const;
+
+// Default checklist created for STUDY bookings after purchase.
+export const STUDY_MILESTONE_TEMPLATES = [
+  "تجهيز الملف والمستندات",
+  "تقديم طلب القبول",
+  "استلام خطاب القبول",
+  "إجراءات التأشيرة الدراسية",
+  "تأمين السكن",
+  "حجز الطيران والاستقبال",
+  "الوصول وبدء الدراسة",
+] as const;
 
 export type BookingStatus = (typeof BOOKING_STATUSES)[number];
 export type ItemType = (typeof ITEM_TYPES)[number];
 export type LedgerType = (typeof LEDGER_TYPES)[number];
+export type MilestoneStatus = (typeof MILESTONE_STATUSES)[number];
 
 export const zEnum = {
   userRole: z.enum(USER_ROLES),
@@ -84,6 +98,8 @@ export const zEnum = {
   transferStatus: z.enum(TRANSFER_STATUSES),
   providerType: z.enum(PROVIDER_TYPES),
   ledgerType: z.enum(LEDGER_TYPES),
+  messageAuthorRole: z.enum(MESSAGE_AUTHOR_ROLES),
+  milestoneStatus: z.enum(MILESTONE_STATUSES),
 };
 
 // Allowed booking status transitions. Agents may advance their own bookings
@@ -172,6 +188,12 @@ export const LABELS = {
     ADJUSTMENT: "تسوية",
   },
   driverStatus: { ACTIVE: "نشط", INACTIVE: "غير نشط" },
+  messageAuthorRole: { CUSTOMER: "العميل", AGENT: "الوكيل", ADMIN: "الإدارة" },
+  milestoneStatus: {
+    PENDING: "بانتظار",
+    IN_PROGRESS: "قيد التنفيذ",
+    DONE: "مكتمل",
+  },
 } as const;
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
@@ -183,6 +205,12 @@ export const BOOKING_STATUS_VARIANTS: Record<BookingStatus, BadgeVariant> = {
   CONFIRMED: "default",
   COMPLETED: "outline",
   CANCELLED: "destructive",
+};
+
+export const MILESTONE_STATUS_VARIANTS: Record<MilestoneStatus, BadgeVariant> = {
+  PENDING: "outline",
+  IN_PROGRESS: "secondary",
+  DONE: "default",
 };
 
 export function labelOf<T extends keyof typeof LABELS>(

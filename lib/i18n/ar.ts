@@ -84,6 +84,8 @@ export const ar = {
     companyName: "اسم الشركة/المؤسسة",
     commissionRate: "نسبة العمولة %",
     platformFeeRate: "نسبة رسوم المنصة %",
+    manageCommissionRate: "نسبة عمولة الإدارة %",
+    managerAgent: "الوكيل المدير",
     referralCode: "كود الإحالة",
     institute: "المعهد/الجامعة",
     tuition: "الرسوم الدراسية",
@@ -174,6 +176,13 @@ export const ar = {
     customerNotes: "ملاحظات العميل",
     setPriceFirst: "حدد السعر الإجمالي قبل تأكيد الحجز",
     statusUpdated: "تم تحديث حالة الحجز",
+    messages: "المحادثة",
+    messagesHint: "تواصل مباشر بينك وبين فريق المتابعة",
+    writeMessage: "اكتب رسالتك...",
+    noMessages: "لا توجد رسائل بعد — ابدأ المحادثة",
+    milestones: "مراحل البرنامج",
+    addDefaultMilestones: "إنشاء المراحل الافتراضية",
+    milestoneTitle: "عنوان المرحلة",
   },
 
   trip: {
@@ -182,6 +191,9 @@ export const ar = {
     itinerary: "جدول الرحلة",
     contactUs: "تواصل معنا",
     notFound: "لم نعثر على هذه الرحلة. تأكد من صحة الرابط.",
+    progress: "مراحل برنامجك",
+    yourContact: "مسؤول المتابعة",
+    yourContactHint: "للاستفسار أو التعديل، تواصل مع المسؤول عن حجزك مباشرة.",
   },
 
   misc: {

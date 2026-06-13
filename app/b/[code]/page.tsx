@@ -19,6 +19,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingStatusBadge } from "@/components/shared/misc";
 import { ItineraryView } from "@/components/public/itinerary-view";
+import { MilestonesView } from "@/components/public/milestones-view";
+import { TripMessages } from "@/components/public/trip-messages";
+
+// "05xxxxxxxx" → "9665xxxxxxxx" for wa.me; passes through already-formatted numbers.
+function toWa(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("0")) return `966${digits.slice(1)}`;
+  return digits;
+}
 
 export const metadata: Metadata = {
   title: "تفاصيل رحلتك",
@@ -58,6 +67,10 @@ export default async function TripPage({
           orderBy: { date: "asc" },
           include: { driver: { select: { name: true, phone: true } } },
         },
+        messages: { orderBy: { createdAt: "asc" } },
+        milestones: { orderBy: { sortOrder: "asc" } },
+        agent: { include: { user: { select: { name: true } } } },
+        managerAgent: { include: { user: { select: { name: true } } } },
       },
     }),
     getSettings(),
@@ -76,6 +89,9 @@ export default async function TripPage({
   const visibleTransfers = booking.transfers.filter(
     (t) => t.status !== "CANCELLED",
   );
+  // The agent managing this booking (manager first, else the referral agent)
+  // becomes the customer's point of contact; otherwise the platform.
+  const responsible = booking.managerAgent ?? booking.agent;
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -219,34 +235,93 @@ export default async function TripPage({
           </Card>
         )}
 
+        {booking.milestones.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">{ar.trip.progress}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MilestonesView milestones={booking.milestones} />
+            </CardContent>
+          </Card>
+        )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{ar.booking.messages}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {ar.booking.messagesHint}
+            </p>
+          </CardHeader>
+          <CardContent>
+            <TripMessages
+              code={booking.code}
+              messages={booking.messages.map((m) => ({
+                id: m.id,
+                authorRole: m.authorRole,
+                authorName: m.authorName,
+                body: m.body,
+                createdAt: m.createdAt.toISOString(),
+              }))}
+            />
+          </CardContent>
+        </Card>
+
         <Card>
           <CardContent className="grid gap-3 text-center">
-            <p className="font-bold">{ar.trip.contactUs}</p>
+            <p className="font-bold">{ar.trip.yourContact}</p>
             <p className="text-sm text-muted-foreground">
-              لأي استفسار أو تعديل على رحلتك، فريق خطار في خدمتك.
+              {ar.trip.yourContactHint}
             </p>
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {settings.whatsapp && (
-                <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                  <a
-                    href={`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(`استفسار عن الحجز ${booking.code}`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageCircleIcon className="size-4" />
-                    واتساب
-                  </a>
-                </Button>
-              )}
-              {settings.phone && (
-                <Button asChild size="sm" variant="outline">
-                  <a href={`tel:${settings.phone}`}>
-                    <PhoneIcon className="size-4" />
-                    <span dir="ltr">{settings.phone}</span>
-                  </a>
-                </Button>
-              )}
-            </div>
+            {responsible ? (
+              <>
+                <p className="text-sm font-medium">
+                  {responsible.user.name}
+                  {responsible.companyName ? ` — ${responsible.companyName}` : ""}
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                    <a
+                      href={`https://wa.me/${toWa(responsible.phone)}?text=${encodeURIComponent(`استفسار عن الحجز ${booking.code}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircleIcon className="size-4" />
+                      واتساب
+                    </a>
+                  </Button>
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`tel:${responsible.phone}`}>
+                      <PhoneIcon className="size-4" />
+                      <span dir="ltr">{responsible.phone}</span>
+                    </a>
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {settings.whatsapp && (
+                  <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                    <a
+                      href={`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(`استفسار عن الحجز ${booking.code}`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageCircleIcon className="size-4" />
+                      واتساب
+                    </a>
+                  </Button>
+                )}
+                {settings.phone && (
+                  <Button asChild size="sm" variant="outline">
+                    <a href={`tel:${settings.phone}`}>
+                      <PhoneIcon className="size-4" />
+                      <span dir="ltr">{settings.phone}</span>
+                    </a>
+                  </Button>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>
