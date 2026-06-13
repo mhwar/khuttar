@@ -231,6 +231,71 @@ async function main() {
     data: { destinationId: azerbaijan.id, kind: "CITY", name: "باكو", sortOrder: 1 },
   });
 
+  // ── Edinburgh ──────────────────────────────────────────────────
+  const edinburgh = await db.destination.create({
+    data: {
+      slug: "edinburgh",
+      name: "إدنبرة",
+      country: "المملكة المتحدة — اسكتلندا",
+      type: "INTERNATIONAL",
+      description:
+        "عاصمة اسكتلندا تجمع بين قلعة تطل على مدينة لم يمسّها الزمن، وطريق ملكي يصل التاريخ بالحاضر. " +
+        "تجربة حضارية نادرة: متاحف مجانية، طبيعة جبلية داخل المدينة، ومهرجان فنوني يملأ المدينة كل أغسطس.",
+      image: "/images/edinburgh.svg",
+      featured: true,
+      sortOrder: 6,
+    },
+  });
+  const edinCity  = await db.area.create({ data: { destinationId: edinburgh.id, kind: "CITY",     name: "إدنبرة",               sortOrder: 1 } });
+  const oldTown   = await db.area.create({ data: { destinationId: edinburgh.id, parentId: edinCity.id, kind: "DISTRICT", name: "المدينة القديمة",    sortOrder: 1 } });
+  const newTown   = await db.area.create({ data: { destinationId: edinburgh.id, parentId: edinCity.id, kind: "DISTRICT", name: "المدينة الجديدة",    sortOrder: 2 } });
+  const leith     = await db.area.create({ data: { destinationId: edinburgh.id, parentId: edinCity.id, kind: "DISTRICT", name: "ليث",                sortOrder: 3 } });
+  const holyrood  = await db.area.create({ data: { destinationId: edinburgh.id, parentId: edinCity.id, kind: "DISTRICT", name: "هوليرود والبرلمان", sortOrder: 4 } });
+
+  // ── العلا — وجهة مستقلة ──────────────────────────────────────
+  const alulaD = await db.destination.create({
+    data: {
+      slug: "alula",
+      name: "العُلا",
+      country: "المملكة العربية السعودية",
+      type: "DOMESTIC",
+      description:
+        "أول موقع سعودي على قائمة التراث العالمي لليونسكو — مدينة تسبق التاريخ المكتوب. " +
+        "مقابر النبطيين المنحوتة في الصخر، ووادي ديدان الحضارة الألفية، وجبل إكمه المكتبة الصخرية.",
+      image: "/images/alula.svg",
+      featured: true,
+      sortOrder: 7,
+    },
+  });
+  const alulaCity    = await db.area.create({ data: { destinationId: alulaD.id, kind: "CITY",     name: "العلا",               sortOrder: 1 } });
+  const oldTownAl    = await db.area.create({ data: { destinationId: alulaD.id, parentId: alulaCity.id, kind: "DISTRICT", name: "البلدة القديمة",    sortOrder: 1 } });
+  const hijrArea     = await db.area.create({ data: { destinationId: alulaD.id, parentId: alulaCity.id, kind: "DISTRICT", name: "الحِجر — مدائن صالح", sortOrder: 2 } });
+  const dadanArea    = await db.area.create({ data: { destinationId: alulaD.id, parentId: alulaCity.id, kind: "DISTRICT", name: "ديدان الأثرية",       sortOrder: 3 } });
+  const jIkmahArea   = await db.area.create({ data: { destinationId: alulaD.id, parentId: alulaCity.id, kind: "DISTRICT", name: "جبل إكمه",            sortOrder: 4 } });
+  const gharameelArea= await db.area.create({ data: { destinationId: alulaD.id, parentId: alulaCity.id, kind: "DISTRICT", name: "الغريميل",            sortOrder: 5 } });
+
+  // ── أبها ──────────────────────────────────────────────────────
+  const abha = await db.destination.create({
+    data: {
+      slug: "abha",
+      name: "أبها",
+      country: "المملكة العربية السعودية",
+      type: "DOMESTIC",
+      description:
+        "عروس جبال السروات على ارتفاع ٢٢٠٠ متر — هواء بارد وخضرة وتراث عسيري أصيل. " +
+        "السودة أعلى قمة في المملكة، وحبالة قرية معلقة على جرف شاهق، وتلفريك أبها من أجمل الإطلالات الجبلية في الخليج.",
+      image: "/images/abha.svg",
+      featured: true,
+      sortOrder: 8,
+    },
+  });
+  const abhaCity   = await db.area.create({ data: { destinationId: abha.id, kind: "CITY",         name: "أبها",                 sortOrder: 1 } });
+  const abhaDown   = await db.area.create({ data: { destinationId: abha.id, parentId: abhaCity.id, kind: "DISTRICT", name: "وسط أبها والتلفريك",  sortOrder: 1 } });
+  const soudasArea = await db.area.create({ data: { destinationId: abha.id, parentId: abhaCity.id, kind: "DISTRICT", name: "السودة",              sortOrder: 2 } });
+  const habalaArea = await db.area.create({ data: { destinationId: abha.id, parentId: abhaCity.id, kind: "DISTRICT", name: "الحبالة",             sortOrder: 3 } });
+  const alqabilArea= await db.area.create({ data: { destinationId: abha.id, parentId: abhaCity.id, kind: "DISTRICT", name: "قرية القابل التراثية", sortOrder: 4 } });
+  const rijalArea  = await db.area.create({ data: { destinationId: abha.id, kind: "GOVERNORATE",   name: "رجال ألمع",            sortOrder: 2 } });
+
   // Attractions
   const [
     boulevard,
@@ -271,6 +336,37 @@ async function main() {
       }),
     ),
   );
+
+  // ── معالم إدنبرة ──────────────────────────────────────────────
+  const edinCastle  = await db.attraction.create({ data: { areaId: oldTown.id,  name: "قلعة إدنبرة",               category: "LANDMARK", description: "قلعة فوق جرف بركاني تحرس المدينة منذ القرن التاسع — تضم التاجَين الملكيَّين الاسكتلنديَّين", durationMin: 150, costEstimate: 170 } });
+  const royalMile   = await db.attraction.create({ data: { areaId: oldTown.id,  name: "الطريق الملكي",             category: "LANDMARK", description: "الشارع الرئيسي الذي يربط القلعة بقصر هوليرود — محلات ومطاعم وموسيقيو الشوارع",               durationMin: 90,  costEstimate: 0   } });
+  const grassmkt    = await db.attraction.create({ data: { areaId: oldTown.id,  name: "سوق غراسماركيت",            category: "ACTIVITY", description: "ساحة تاريخية محاطة بالحانات والمطاعم — قلب الحياة الليلية لإدنبرة القديمة",                    durationMin: 90,  costEstimate: 0   } });
+  const scotMuseum  = await db.attraction.create({ data: { areaId: oldTown.id,  name: "المتحف الوطني الاسكتلندي",  category: "MUSEUM",   description: "٢٢ صالة تمتد عبر الطبيعة والتاريخ والفن — مجاني ومفتوح كل يوم",                               durationMin: 150, costEstimate: 0   } });
+  const holyroodPal = await db.attraction.create({ data: { areaId: holyrood.id, name: "قصر هوليرود",               category: "LANDMARK", description: "المقر الرسمي للأسرة المالكة في اسكتلندا — جولة مسموعة بالعربي",                               durationMin: 120, costEstimate: 130 } });
+  const arthurSeat  = await db.attraction.create({ data: { areaId: holyrood.id, name: "عرش أرثر",                  category: "PARK",     description: "قمة بركانية داخل المدينة ارتفاعها ٢٥١ م — أفضل بانوراما لإدنبرة",                              durationMin: 150, costEstimate: 0   } });
+  const caltonHill  = await db.attraction.create({ data: { areaId: newTown.id,  name: "تل كالتون",                 category: "PARK",     description: "تل في قلب المدينة الجديدة — يضم النصب التذكاري الوطني وإطلالة خرافية",                         durationMin: 60,  costEstimate: 0   } });
+  const princesGard = await db.attraction.create({ data: { areaId: newTown.id,  name: "حدائق برينسيز ستريت",       category: "PARK",     description: "حدائق خضراء تفصل المدينتين القديمة والجديدة، أمامها القلعة خلفية خلابة",                         durationMin: 60,  costEstimate: 0   } });
+  const botGardenEd = await db.attraction.create({ data: { areaId: newTown.id,  name: "الحديقة النباتية الملكية",  category: "PARK",     description: "من أقدم الحدائق النباتية في العالم — ٢٨٠ سنة من الجمال والبحث العلمي",                          durationMin: 90,  costEstimate: 0   } });
+  const whiskyExp   = await db.attraction.create({ data: { areaId: oldTown.id,  name: "تجربة الويسكي الاسكتلندي", category: "ACTIVITY", description: "جولة تفاعلية في صناعة الويسكي الاسكتلندي الأشهر عالمياً",                                       durationMin: 90,  costEstimate: 165 } });
+  const royalBrit   = await db.attraction.create({ data: { areaId: leith.id,    name: "اليخت الملكي برتانيا",      category: "LANDMARK", description: "اليخت الملكي البريطاني المُحوَّل لمتحف عائم في ميناء ليث",                                       durationMin: 120, costEstimate: 130 } });
+
+  // ── معالم العلا ──────────────────────────────────────────────
+  const hegraSeed   = await db.attraction.create({ data: { areaId: hijrArea.id,      name: "مدائن صالح (الحِجر)",         category: "LANDMARK", description: "٩٤ مقبرة نبطية منحوتة في الحجر الرملي — أول موقع سعودي بقائمة يونسكو ٢٠٠٨",           durationMin: 240, costEstimate: 95  } });
+  const jFilAlD     = await db.attraction.create({ data: { areaId: hijrArea.id,      name: "جبل الفيل",                   category: "LANDMARK", description: "صخرة بحجم الفيل نحتها الزمن — رمز العلا الأشهر",                                       durationMin: 60,  costEstimate: 0   } });
+  const dadanRuins  = await db.attraction.create({ data: { areaId: dadanArea.id,     name: "ديدان — عاصمة اللحيانيين",   category: "LANDMARK", description: "عاصمة مملكة ديدان ثم اللحيانيين: معابد ومقابر تمتد ٣٠٠٠ سنة",                          durationMin: 120, costEstimate: 75  } });
+  const ikmaAttr    = await db.attraction.create({ data: { areaId: jIkmahArea.id,    name: "جبل إكمه — المكتبة الصخرية", category: "LANDMARK", description: "أكثر من ٥٠٠ نقش بالنبطية واللحيانية — أكبر تجمع نقوش أثرية في المنطقة",               durationMin: 120, costEstimate: 60  } });
+  const gharameelAt = await db.attraction.create({ data: { areaId: gharameelArea.id, name: "الغريميل — متاهة الصخور",     category: "LANDMARK", description: "تكوينات صخرية طبيعية بأشكال خيالية — أفضل للصور عند الشروق والغروب",                  durationMin: 120, costEstimate: 45  } });
+  const oldTownAlAt = await db.attraction.create({ data: { areaId: oldTownAl.id,     name: "البلدة القديمة وطريق البخور", category: "LANDMARK", description: "٩٠٠ منزل طيني متلاصق عمرها ٨٠٠ سنة على طريق البخور التاريخي",                        durationMin: 90,  costEstimate: 30  } });
+  const khurayba    = await db.attraction.create({ data: { areaId: dadanArea.id,     name: "الخريبة — مقابر الأسد",       category: "LANDMARK", description: "تماثيل أسود محفورة في الجرف فوق مقابر اللحيانيين — فريدة في العالم",                  durationMin: 90,  costEstimate: 60  } });
+
+  // ── معالم أبها ───────────────────────────────────────────────
+  const telferik    = await db.attraction.create({ data: { areaId: abhaDown.id,   name: "تلفريك أبها",                    category: "ACTIVITY", description: "كابل من قلعة أبها ينزل ٣ كم فوق الأودية الخضراء — أطول تلفريك في المملكة",          durationMin: 90,  costEstimate: 50  } });
+  const abhaFort    = await db.attraction.create({ data: { areaId: abhaDown.id,   name: "قلعة أبها التاريخية",            category: "LANDMARK", description: "قلعة عثمانية تتوسط المدينة — تُشرف على الأودية وتروي تاريخ عسير",                     durationMin: 60,  costEstimate: 0   } });
+  const soudaTop    = await db.attraction.create({ data: { areaId: soudasArea.id, name: "منتزه السودة",                   category: "PARK",     description: "ارتفاع ٣٠١٥ م — تلفريك وحدائق وإطلالات فوق الغيوم",                                   durationMin: 180, costEstimate: 30  } });
+  const habalaVil   = await db.attraction.create({ data: { areaId: habalaArea.id, name: "قرية الحبالة المعلقة",           category: "LANDMARK", description: "قرية بُنيت على جرف رأسي ارتفاعه ٣٠٠ م — يصلها تلفريك حديث",                          durationMin: 150, costEstimate: 60  } });
+  const qabilVil    = await db.attraction.create({ data: { areaId: alqabilArea.id,name: "قرية القابل الأثرية",            category: "LANDMARK", description: "قرية طينية بعمارة عسيرية أصيلة محاطة بالزراعات المدرجة",                              durationMin: 90,  costEstimate: 20  } });
+  const rijalAlmaAt = await db.attraction.create({ data: { areaId: rijalArea.id,  name: "قرية رجال ألمع",                 category: "LANDMARK", description: "القرية الأثرية الأشهر في عسير — منازل حجرية بطراز هندسي فريد",                        durationMin: 150, costEstimate: 25  } });
+  const shadaPalace = await db.attraction.create({ data: { areaId: abhaDown.id,   name: "قصر شدا الملكي",                 category: "LANDMARK", description: "قصر الملك عبدالعزيز في أبها — تحوّل لمتحف يُطل على المدينة",                          durationMin: 60,  costEstimate: 20  } });
 
   // ── Tour programs ─────────────────────────────────────────────
   type ItemSeed = {
@@ -759,6 +855,123 @@ async function main() {
       capacity: 6,
       notes: "سائق خطار المعتمد في إسطنبول — يتحدث العربية",
     },
+  });
+
+  // ── برنامج إدنبرة ٧ أيام ─────────────────────────────────────
+  await createTour({
+    slug: "edinburgh-7-days",
+    title: "إدنبرة — تجربة اسكتلندا الكاملة",
+    summary: "٧ أيام في أجمل مدينة في أوروبا: قلاع وقصور وطبيعة جبلية داخل المدينة.",
+    description:
+      "إدنبرة ليست مجرد مدينة — هي تجربة حضارية فريدة. من القلعة العريقة إلى عرش أرثر، " +
+      "ومن قصر هوليرود الملكي إلى ميناء ليث الفني. متاحف مجانية بمستوى عالمي، مطاعم اسكتلندية أصيلة، " +
+      "وأجواء ترفع الروح في كل حارة وشارع.",
+    coverImage: "/images/edinburgh.svg",
+    tourType: "INTERNATIONAL",
+    destinationId: edinburgh.id,
+    basePrice: 6800,
+    durationDays: 7,
+    featured: true,
+    inclusions: [
+      "الإقامة ٦ ليالٍ فندق ٤ نجوم في المدينة القديمة مع الإفطار الاسكتلندي",
+      "الاستقبال والتوديع من مطار إدنبرة بسيارة خاصة",
+      "بطاقة مدينة إدنبرة (City Pass) للمواصلات والمتاحف",
+      "جولات مرشد سياحي عربي (أيام ٢، ٣، ٤)",
+      "تذكرة قلعة إدنبرة وقصر هوليرود واليخت الملكي",
+      "رحلة يومية بالباص إلى Loch Lomond وقلعة Stirling",
+    ],
+    exclusions: [
+      "تذاكر الطيران الدولي",
+      "وجبات الغداء والعشاء",
+      "التأشيرة البريطانية",
+      "التأمين على السفر",
+    ],
+    days: [
+      {
+        title: "الوصول واستكشاف الطريق الملكي",
+        description: "أول لمسة لإدنبرة: الفندق في قلب المدينة القديمة والطريق الملكي مساءً",
+        items: [
+          { type: "FLIGHT",    title: "الوصول لمطار إدنبرة",                              startTime: "13:00", areaId: edinCity.id },
+          { type: "TRANSPORT", title: "الاستقبال والتوجه للفندق بسيارة خاصة",             startTime: "14:00", durationMin: 30,  areaId: oldTown.id },
+          { type: "HOTEL",     title: "تسجيل الدخول — فندق في المدينة القديمة",           startTime: "15:00", durationMin: 60,  areaId: oldTown.id },
+          { type: "ACTIVITY",  title: "مشي استكشافي في الطريق الملكي",                    startTime: "17:00", durationMin: 90,  areaId: oldTown.id, attractionId: royalMile.id, notes: "راقب الموسيقيين الاسكتلنديين وتصفح المحلات" },
+          { type: "MEAL",      title: "عشاء في أحد مطاعم Old Town",                       startTime: "19:30", durationMin: 90,  areaId: oldTown.id },
+        ],
+      },
+      {
+        title: "قلعة إدنبرة والمتحف الوطني",
+        description: "يوم التاريخ الكامل — القلعة صباحاً والمتحف المجاني بعد الظهر",
+        items: [
+          { type: "MEAL",      title: "إفطار اسكتلندي في الفندق",                          startTime: "08:00", durationMin: 60 },
+          { type: "ACTIVITY",  title: "قلعة إدنبرة — التاجان الملكيان ومدفع الساعة",      startTime: "09:30", durationMin: 150, areaId: oldTown.id, attractionId: edinCastle.id, notes: "احجز التذكرة مسبقاً" },
+          { type: "MEAL",      title: "غداء خفيف قرب القلعة",                             startTime: "12:30", durationMin: 60,  areaId: oldTown.id },
+          { type: "ACTIVITY",  title: "المتحف الوطني الاسكتلندي — مجاني",                 startTime: "14:00", durationMin: 150, areaId: oldTown.id, attractionId: scotMuseum.id },
+          { type: "ACTIVITY",  title: "سوق غراسماركيت والحارات القديمة",                  startTime: "17:30", durationMin: 90,  areaId: oldTown.id, attractionId: grassmkt.id },
+          { type: "MEAL",      title: "عشاء في غراسماركيت",                                startTime: "20:00", durationMin: 90,  areaId: oldTown.id },
+        ],
+      },
+      {
+        title: "قصر هوليرود وعرش أرثر",
+        description: "القصر الملكي ثم تسلق القمة البركانية بداخل المدينة",
+        items: [
+          { type: "MEAL",      title: "إفطار في الفندق",                                   startTime: "08:00", durationMin: 60 },
+          { type: "ACTIVITY",  title: "قصر هوليرود — الجولة المسموعة بالعربي",             startTime: "09:30", durationMin: 120, areaId: holyrood.id, attractionId: holyroodPal.id },
+          { type: "MEAL",      title: "غداء في كافيه البرلمان الاسكتلندي",                startTime: "12:00", durationMin: 60,  areaId: holyrood.id },
+          { type: "ACTIVITY",  title: "تسلق عرش أرثر — أفضل بانوراما لإدنبرة",           startTime: "14:00", durationMin: 150, areaId: holyrood.id, attractionId: arthurSeat.id, notes: "ارتدِ حذاءً مريحاً — الصعود سهل ومكافأته رهيبة" },
+          { type: "FREE_TIME", title: "وقت حر في Holyrood Park",                           startTime: "17:00", durationMin: 60,  areaId: holyrood.id },
+          { type: "MEAL",      title: "عشاء في المدينة القديمة",                            startTime: "20:00", durationMin: 90,  areaId: oldTown.id },
+        ],
+      },
+      {
+        title: "المدينة الجديدة — الحدائق والبوتانيكال",
+        description: "المعمار الجورجي وحدائق ملكية وتجربة الويسكي الاسكتلندي",
+        items: [
+          { type: "MEAL",      title: "إفطار في الفندق",                                   startTime: "08:00", durationMin: 60 },
+          { type: "ACTIVITY",  title: "حدائق برينسيز ستريت — صورة القلعة الأيقونية",      startTime: "09:30", durationMin: 60,  areaId: newTown.id, attractionId: princesGard.id },
+          { type: "ACTIVITY",  title: "الحديقة النباتية الملكية — مجانية",                startTime: "11:00", durationMin: 90,  areaId: newTown.id, attractionId: botGardenEd.id },
+          { type: "MEAL",      title: "غداء على شارع George St",                          startTime: "13:00", durationMin: 75,  areaId: newTown.id },
+          { type: "ACTIVITY",  title: "تجربة الويسكي الاسكتلندي — جولة تفاعلية",         startTime: "15:00", durationMin: 90,  areaId: oldTown.id, attractionId: whiskyExp.id },
+          { type: "FREE_TIME", title: "تسوق في Princes Street",                            startTime: "17:00", durationMin: 120, areaId: newTown.id },
+          { type: "MEAL",      title: "عشاء في المدينة الجديدة",                            startTime: "20:00", durationMin: 90,  areaId: newTown.id },
+        ],
+      },
+      {
+        title: "رحلة يومية — Loch Lomond وقلعة Stirling",
+        description: "خروج من المدينة نحو الطبيعة الاسكتلندية الساحرة",
+        items: [
+          { type: "MEAL",      title: "إفطار مبكر في الفندق",                              startTime: "07:30", durationMin: 45 },
+          { type: "TRANSPORT", title: "باص مجموعة إلى Loch Lomond",                        startTime: "08:30", durationMin: 90,  areaId: edinCity.id },
+          { type: "ACTIVITY",  title: "بحيرة Loch Lomond — أولى بحيرات الهايلاندز",      startTime: "10:30", durationMin: 120, notes: "جولة بحرية اختيارية أو مشي على الشاطئ" },
+          { type: "MEAL",      title: "غداء في قرية Luss التاريخية",                      startTime: "13:00", durationMin: 75 },
+          { type: "ACTIVITY",  title: "قلعة Stirling — قلعة ماري ملكة اسكتلندا",         startTime: "15:30", durationMin: 120, notes: "توقف على الطريق للعودة" },
+          { type: "TRANSPORT", title: "العودة إلى إدنبرة",                                 startTime: "18:30", durationMin: 90,  areaId: edinCity.id },
+          { type: "MEAL",      title: "عشاء في المدينة القديمة",                            startTime: "20:30", durationMin: 90,  areaId: oldTown.id },
+        ],
+      },
+      {
+        title: "ليث وتل كالتون",
+        description: "حي الميناء الفني واليخت الملكي وأجمل غروب في المدينة",
+        items: [
+          { type: "MEAL",      title: "إفطار في الفندق",                                   startTime: "08:30", durationMin: 60 },
+          { type: "ACTIVITY",  title: "اليخت الملكي برتانيا في ميناء ليث",                startTime: "10:00", durationMin: 120, areaId: leith.id, attractionId: royalBrit.id },
+          { type: "MEAL",      title: "غداء مأكولات بحرية في ليث",                        startTime: "13:00", durationMin: 75,  areaId: leith.id },
+          { type: "FREE_TIME", title: "استكشاف حي ليث الفني",                              startTime: "15:00", durationMin: 90,  areaId: leith.id },
+          { type: "ACTIVITY",  title: "تل كالتون — غروب الشمس فوق المدينة",               startTime: "18:00", durationMin: 90,  areaId: newTown.id, attractionId: caltonHill.id, notes: "الغروب في الصيف بعد ٢١:٠٠ — تجربة لا تُنسى" },
+          { type: "MEAL",      title: "عشاء أخير في إدنبرة",                               startTime: "21:00", durationMin: 90,  areaId: oldTown.id },
+        ],
+      },
+      {
+        title: "المغادرة",
+        description: "تسوق أخير ثم وداع إدنبرة",
+        items: [
+          { type: "MEAL",      title: "إفطار في الفندق",                                   startTime: "08:00", durationMin: 60 },
+          { type: "FREE_TIME", title: "تسوق أخير — هدايا اسكتلندية تذكارية",              startTime: "09:30", durationMin: 120, areaId: oldTown.id, notes: "Shortbread، ويسكي، وكيلت — أفضل الهدايا" },
+          { type: "HOTEL",     title: "تسجيل الخروج من الفندق",                            startTime: "12:00", durationMin: 30,  areaId: oldTown.id },
+          { type: "TRANSPORT", title: "التوصيل لمطار إدنبرة بسيارة خاصة",                 startTime: "13:00", durationMin: 30,  areaId: edinCity.id },
+          { type: "FLIGHT",    title: "المغادرة من مطار إدنبرة",                           startTime: "16:00" },
+        ],
+      },
+    ],
   });
 
   // ── Bookings across the whole pipeline ────────────────────────
