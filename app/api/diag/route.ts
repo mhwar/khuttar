@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.json(
     {
       time: new Date().toISOString(),
+      build: "login-via-route-handler", // علامة: تؤكد أن نسخة إصلاح الدخول حيّة
       adminAccounts: admins,
       // مفتاح الحسم: هل بيانات Render تطابق المخزَّن؟
       envEmailMasked,
