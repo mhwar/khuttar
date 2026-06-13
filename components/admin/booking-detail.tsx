@@ -24,6 +24,8 @@ import {
   PAYMENT_METHODS,
   labelOf,
 } from "@/lib/constants";
+import { partitionByArea, type AreaParentMap } from "@/lib/area-tree";
+import { AreaSelect, type AreaOption } from "@/components/shared/area-select";
 import { formatDate, formatDateTime, formatSAR, toInputDate } from "@/lib/format";
 import { ar } from "@/lib/i18n/ar";
 import { BookingStatusBadge, EmptyState } from "@/components/shared/misc";
@@ -59,6 +61,7 @@ export type BookingDetail = Prisma.BookingRequestGetPayload<{
       include: {
         driver: true;
         provider: { select: { name: true } };
+        area: { select: { name: true } };
       };
     };
     messages: true;
@@ -82,18 +85,77 @@ export function BookingDetailView({
   providers,
   agents,
   admins,
+  areas,
+  areaParents,
   appUrl,
 }: {
   booking: BookingDetail;
   isAdmin: boolean;
-  drivers: { id: string; name: string }[];
-  providers: { id: string; name: string }[];
+  drivers: { id: string; name: string; areaId: string | null }[];
+  providers: { id: string; name: string; areaId: string | null }[];
   agents: { id: string; name: string }[];
   admins: { id: string; name: string }[];
+  areas: AreaOption[];
+  areaParents: AreaParentMap;
   appUrl: string;
 }) {
   const paid = booking.payments.reduce((sum, p) => sum + p.amount, 0);
   const tripUrl = `${appUrl}/b/${booking.code}`;
+
+  // Smart driver/provider selector — shows area-matched items first.
+  function DriverSelect({
+    name,
+    defaultValue,
+    transferAreaId,
+  }: {
+    name: string;
+    defaultValue?: string | null;
+    transferAreaId?: string | null;
+  }) {
+    const { suggested, others } = partitionByArea(drivers, transferAreaId, areaParents);
+    return (
+      <NativeSelect name={name} defaultValue={defaultValue ?? ""}>
+        <option value="">{ar.misc.none}</option>
+        {suggested.length > 0 && (
+          <optgroup label={ar.booking.suggestedNearby}>
+            {suggested.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </optgroup>
+        )}
+        {others.length > 0 && (
+          <optgroup label={suggested.length > 0 ? ar.booking.otherOptions : "السائقون"}>
+            {others.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+          </optgroup>
+        )}
+      </NativeSelect>
+    );
+  }
+
+  function ProviderSelect({
+    name,
+    defaultValue,
+    transferAreaId,
+  }: {
+    name: string;
+    defaultValue?: string | null;
+    transferAreaId?: string | null;
+  }) {
+    const { suggested, others } = partitionByArea(providers, transferAreaId, areaParents);
+    return (
+      <NativeSelect name={name} defaultValue={defaultValue ?? ""}>
+        <option value="">{ar.misc.none}</option>
+        {suggested.length > 0 && (
+          <optgroup label={ar.booking.suggestedNearby}>
+            {suggested.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </optgroup>
+        )}
+        {others.length > 0 && (
+          <optgroup label={suggested.length > 0 ? ar.booking.otherOptions : "المزوّدون"}>
+            {others.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </optgroup>
+        )}
+      </NativeSelect>
+    );
+  }
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
@@ -196,6 +258,15 @@ export function BookingDetailView({
                   <Input name="toLocation" required />
                 </Field>
               </div>
+              {isAdmin && (
+                <Field
+                  label={ar.fields.serviceArea}
+                  name="areaId"
+                  hint="تحديد المنطقة يقترح السائقين والمزوّدين المناسبين تلقائياً"
+                >
+                  <AreaSelect name="areaId" areas={areas} />
+                </Field>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={ar.fields.vehicleType} name="vehicleType">
                   <Input name="vehicleType" placeholder="فان ٧ ركاب..." />
@@ -209,24 +280,10 @@ export function BookingDetailView({
               {isAdmin && (
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label={ar.fields.driver} name="driverId">
-                    <NativeSelect name="driverId" defaultValue="">
-                      <option value="">{ar.misc.none}</option>
-                      {drivers.map((d) => (
-                        <option key={d.id} value={d.id}>
-                          {d.name}
-                        </option>
-                      ))}
-                    </NativeSelect>
+                    <DriverSelect name="driverId" />
                   </Field>
                   <Field label={ar.fields.provider} name="providerId">
-                    <NativeSelect name="providerId" defaultValue="">
-                      <option value="">{ar.misc.none}</option>
-                      {providers.map((p) => (
-                        <option key={p.id} value={p.id}>
-                          {p.name}
-                        </option>
-                      ))}
-                    </NativeSelect>
+                    <ProviderSelect name="providerId" />
                   </Field>
                 </div>
               )}
@@ -299,31 +356,24 @@ export function BookingDetailView({
                         }
                       >
                         <input type="hidden" name="id" value={transfer.id} />
+                        {transfer.area && (
+                          <p className="text-xs text-muted-foreground">
+                            منطقة الخدمة: <strong>{transfer.area.name}</strong> — المقترحون في الأعلى
+                          </p>
+                        )}
                         <Field label={ar.fields.driver} name="driverId">
-                          <NativeSelect
+                          <DriverSelect
                             name="driverId"
-                            defaultValue={transfer.driverId ?? ""}
-                          >
-                            <option value="">{ar.misc.none}</option>
-                            {drivers.map((d) => (
-                              <option key={d.id} value={d.id}>
-                                {d.name}
-                              </option>
-                            ))}
-                          </NativeSelect>
+                            defaultValue={transfer.driverId}
+                            transferAreaId={transfer.areaId}
+                          />
                         </Field>
                         <Field label={ar.fields.provider} name="providerId">
-                          <NativeSelect
+                          <ProviderSelect
                             name="providerId"
-                            defaultValue={transfer.providerId ?? ""}
-                          >
-                            <option value="">{ar.misc.none}</option>
-                            {providers.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.name}
-                              </option>
-                            ))}
-                          </NativeSelect>
+                            defaultValue={transfer.providerId}
+                            transferAreaId={transfer.areaId}
+                          />
                         </Field>
                         <Field label={ar.fields.price} name="price">
                           <Input

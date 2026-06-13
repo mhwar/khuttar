@@ -87,10 +87,16 @@ model Driver {
   notes        String?
   providerId   String?
   provider     ServiceProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  // Service area on the destination/area tree. A driver pinned to a REGION
+  // implicitly covers all its child cities (see lib/area-tree.ts).
+  areaId       String?
+  area         Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
   transfers Transfer[]
+
+  @@index([areaId])
 }
 
 model ServiceProvider {
@@ -103,11 +109,16 @@ model ServiceProvider {
   city        String?
   status      String   @default("ACTIVE") // ACTIVE | INACTIVE
   notes       String?
+  // Service area on the destination/area tree (same coverage rule as Driver).
+  areaId      String?
+  area        Area?    @relation(fields: [areaId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   drivers   Driver[]
   transfers Transfer[]
+
+  @@index([areaId])
 }
 
 // ───────────────── Destinations / areas / attractions ─────────────────
@@ -144,6 +155,9 @@ model Area {
 
   attractions    Attraction[]
   itineraryItems ItineraryItem[]
+  drivers        Driver[]
+  providers      ServiceProvider[]
+  transfers      Transfer[]
 
   @@index([destinationId])
   @@index([parentId])
@@ -342,6 +356,9 @@ model Transfer {
   driver       Driver?          @relation(fields: [driverId], references: [id], onDelete: SetNull)
   providerId   String?
   provider     ServiceProvider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  // Geographic area of the service, used to suggest nearby drivers/providers.
+  areaId       String?
+  area         Area?            @relation(fields: [areaId], references: [id], onDelete: SetNull)
   status       String           @default("REQUESTED") // REQUESTED | ASSIGNED | COMPLETED | CANCELLED
   price        Int?
   notes        String?
@@ -351,6 +368,7 @@ model Transfer {
   @@index([bookingId])
   @@index([status])
   @@index([date])
+  @@index([areaId])
 }
 
 model LedgerEntry {

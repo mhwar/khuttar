@@ -24,6 +24,7 @@ const driverSchema = z.object({
   name: text(2),
   phone: text(9),
   city: optionalText,
+  areaId: optionalText,
   vehicleType: optionalText,
   vehiclePlate: optionalText,
   capacity: optionalInt,
@@ -39,10 +40,11 @@ export async function saveDriver(
   await requireAdmin();
   const parsed = parseForm(driverSchema, formData);
   if (!parsed.success) return parsed.state;
-  const { id, active, providerId, ...data } = parsed.data;
+  const { id, active, providerId, areaId, ...data } = parsed.data;
   const payload = {
     ...data,
     providerId: providerId || null,
+    areaId: areaId || null,
     status: active ? "ACTIVE" : "INACTIVE",
   };
 
@@ -74,6 +76,7 @@ const providerSchema = z.object({
   phone: optionalText,
   email: optionalEmail,
   city: optionalText,
+  areaId: optionalText,
   notes: optionalText,
   active: checkbox,
 });
@@ -85,8 +88,12 @@ export async function saveProvider(
   await requireAdmin();
   const parsed = parseForm(providerSchema, formData);
   if (!parsed.success) return parsed.state;
-  const { id, active, ...data } = parsed.data;
-  const payload = { ...data, status: active ? "ACTIVE" : "INACTIVE" };
+  const { id, active, areaId, ...data } = parsed.data;
+  const payload = {
+    ...data,
+    areaId: areaId || null,
+    status: active ? "ACTIVE" : "INACTIVE",
+  };
 
   if (id) await db.serviceProvider.update({ where: { id }, data: payload });
   else await db.serviceProvider.create({ data: payload });
