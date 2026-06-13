@@ -14,6 +14,7 @@ export const ar = {
     agents: "انضم كوكيل",
     contact: "تواصل معنا",
     login: "تسجيل الدخول",
+    bookNowCta: "اطلب رحلتك",
   },
 
   actions: {
@@ -304,6 +305,30 @@ export const ar = {
       "فريق خطار جاهز لمساعدتك في اختيار الوجهة أو البرنامج الأنسب لك. ابدأ الآن وخطّط رحلة تستحقها.",
     finalCtaBrowse: "تصفّح البرامج",
     finalCtaContact: "تواصل معنا",
+  },
+
+  programs: {
+    resultSuffix: "برنامج متاح",
+    clearFilters: "مسح الفلاتر",
+    allTypes: "كل الأنواع",
+  },
+
+  detail: {
+    overview: "نظرة عامة",
+    itinerarySection: "الجدول التفصيلي",
+    includesSection: "يشمل ولا يشمل",
+    includesTitle: "يشمل البرنامج",
+    excludesTitle: "لا يشمل",
+    bookSection: "الحجز",
+    contactWhatsapp: "تواصل عبر واتساب",
+    breadcrumbPrograms: "البرامج السياحية",
+  },
+
+  footer: {
+    quickLinks: "روابط سريعة",
+    forPartners: "للشركاء",
+    contactUs: "تواصل معنا",
+    rights: "جميع الحقوق محفوظة",
   },
 } as const;
 
