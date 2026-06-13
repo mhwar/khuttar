@@ -924,6 +924,207 @@ async function main() {
     },
   });
 
+  // ── إيطاليا (شمال إيطاليا) ──────────────────────────────────────
+  const italy = await db.destination.create({
+    data: {
+      slug: "italy-north",
+      name: "شمال إيطاليا",
+      country: "إيطاليا",
+      type: "INTERNATIONAL",
+      description:
+        "طبيعة ساحرة، بحيرات خلابة، قرى جميلة ومدن تاريخية — تجربة لا تُنسى في أجمل مناطق إيطاليا. " +
+        "من كاتدرائية ميلان الشهيرة إلى بحيرة كومو الفاتنة ومرتفعات الدولوميت الثلجية، " +
+        "وصولاً إلى بحيرة غاردا وفيرونا التاريخية وقرى تشينكوي تيري الساحلية.",
+      image: "/images/italy.svg",
+      featured: true,
+      sortOrder: 9,
+    },
+  });
+
+  // مدن شمال إيطاليا
+  const milanCity    = await db.area.create({ data: { destinationId: italy.id, kind: "CITY", name: "ميلان",              sortOrder: 1 } });
+  const duomoDist    = await db.area.create({ data: { destinationId: italy.id, parentId: milanCity.id,    kind: "DISTRICT", name: "الدومو — وسط المدينة",    sortOrder: 1 } });
+  const brera        = await db.area.create({ data: { destinationId: italy.id, parentId: milanCity.id,    kind: "DISTRICT", name: "بريرا",                    sortOrder: 2 } });
+  const portaNova    = await db.area.create({ data: { destinationId: italy.id, parentId: milanCity.id,    kind: "DISTRICT", name: "بورتا نوفا",               sortOrder: 3 } });
+
+  const comoCity     = await db.area.create({ data: { destinationId: italy.id, kind: "CITY", name: "بحيرة كومو",        sortOrder: 2 } });
+  const comoTown     = await db.area.create({ data: { destinationId: italy.id, parentId: comoCity.id,     kind: "DISTRICT", name: "كومو — المدينة",           sortOrder: 1 } });
+  const bellagio     = await db.area.create({ data: { destinationId: italy.id, parentId: comoCity.id,     kind: "DISTRICT", name: "بيلاجيو",                  sortOrder: 2 } });
+  const varenna      = await db.area.create({ data: { destinationId: italy.id, parentId: comoCity.id,     kind: "DISTRICT", name: "فارينا",                   sortOrder: 3 } });
+
+  const dolomitesReg = await db.area.create({ data: { destinationId: italy.id, kind: "REGION", name: "الدولوميت",       sortOrder: 3 } });
+  const cortina      = await db.area.create({ data: { destinationId: italy.id, parentId: dolomitesReg.id, kind: "CITY",    name: "كورتينا برايس",             sortOrder: 1 } });
+  const ortisei      = await db.area.create({ data: { destinationId: italy.id, parentId: dolomitesReg.id, kind: "CITY",    name: "أورتيسي",                   sortOrder: 2 } });
+  const madeleine    = await db.area.create({ data: { destinationId: italy.id, parentId: dolomitesReg.id, kind: "CITY",    name: "سانتا مادلينا",             sortOrder: 3 } });
+
+  const gardaCity    = await db.area.create({ data: { destinationId: italy.id, kind: "CITY", name: "بحيرة غاردا",       sortOrder: 4 } });
+  const sirmione     = await db.area.create({ data: { destinationId: italy.id, parentId: gardaCity.id,    kind: "DISTRICT", name: "سيرميوني",                  sortOrder: 1 } });
+  const rivaDel      = await db.area.create({ data: { destinationId: italy.id, parentId: gardaCity.id,    kind: "DISTRICT", name: "ريفا ديل غاردا",           sortOrder: 2 } });
+  const malcesine    = await db.area.create({ data: { destinationId: italy.id, parentId: gardaCity.id,    kind: "DISTRICT", name: "مالتشيزيني",               sortOrder: 3 } });
+
+  const veronaCity   = await db.area.create({ data: { destinationId: italy.id, kind: "CITY", name: "فيرونا",             sortOrder: 5 } });
+  const veronaOld    = await db.area.create({ data: { destinationId: italy.id, parentId: veronaCity.id,   kind: "DISTRICT", name: "المدينة القديمة — الأرينا", sortOrder: 1 } });
+  const portaNuova   = await db.area.create({ data: { destinationId: italy.id, parentId: veronaCity.id,   kind: "DISTRICT", name: "بورتا نوفا",               sortOrder: 2 } });
+
+  const cinqueCity   = await db.area.create({ data: { destinationId: italy.id, kind: "REGION", name: "تشينكوي تيري",   sortOrder: 6 } });
+  const monterosso   = await db.area.create({ data: { destinationId: italy.id, parentId: cinqueCity.id,   kind: "DISTRICT", name: "مونتيروسو",                 sortOrder: 1 } });
+  const vernazza     = await db.area.create({ data: { destinationId: italy.id, parentId: cinqueCity.id,   kind: "DISTRICT", name: "فيرناتسا",                  sortOrder: 2 } });
+  const manarola     = await db.area.create({ data: { destinationId: italy.id, parentId: cinqueCity.id,   kind: "DISTRICT", name: "مانارولا",                  sortOrder: 3 } });
+
+  // معالم ميلان
+  await db.attraction.createMany({
+    data: [
+      { areaId: duomoDist.id,  name: "كاتدرائية الدومو",               category: "LANDMARK",  description: "أيقونة ميلان وأضخم الكاتدرائيات القوطية في العالم",           durationMin: 90  },
+      { areaId: duomoDist.id,  name: "غاليريا فيتوريو إيمانويل",      category: "MALL",      description: "أفخم أسواق التسوق التاريخية في أوروبا",                       durationMin: 60  },
+      { areaId: brera.id,      name: "حي بريرا الفني",                 category: "MUSEUM",    description: "حي الفنانين بمعارضه وكافيهاته الراقية",                       durationMin: 120 },
+    ],
+  });
+
+  // معالم بحيرة كومو
+  await db.attraction.createMany({
+    data: [
+      { areaId: comoTown.id,  name: "جولة قوارب البحيرة",              category: "ACTIVITY",  description: "استكشاف قرى الضفاف من البحيرة — أجمل منظر في الشمال الإيطالي", durationMin: 180 },
+      { areaId: bellagio.id,  name: "قرية بيلاجيو الخلابة",            category: "LANDMARK",  description: "جوهرة بحيرة كومو بأزقتها المرصوفة وأزهارها الملونة",           durationMin: 120 },
+      { areaId: varenna.id,   name: "قرية فارينا التاريخية",            category: "LANDMARK",  description: "قرية صيد ساحرة تطل على البحيرة الساكنة",                      durationMin: 90  },
+    ],
+  });
+
+  // معالم فيرونا
+  await db.attraction.createMany({
+    data: [
+      { areaId: veronaOld.id, name: "أرينا فيرونا الرومانية",          category: "LANDMARK",  description: "مسرح روماني مكشوف من القرن الأول الميلادي — يستضيف أوبرا صيفية",  durationMin: 90  },
+      { areaId: veronaOld.id, name: "شرفة جولييت",                     category: "LANDMARK",  description: "شرفة إلهام شكسبير في قلب المدينة القديمة",                       durationMin: 30  },
+      { areaId: veronaOld.id, name: "ساحة إيربي والمطاعم",              category: "RESTAURANT",description: "قلب الحياة الليلية والمطبخ الفينيتي الأصيل",                    durationMin: 90  },
+    ],
+  });
+
+  // معالم تشينكوي تيري
+  await db.attraction.createMany({
+    data: [
+      { areaId: monterosso.id, name: "شاطئ مونتيروسو",                 category: "PARK",      description: "الشاطئ الوحيد الكبير في تشينكوي تيري",                          durationMin: 120 },
+      { areaId: vernazza.id,   name: "ميناء فيرناتسا",                  category: "LANDMARK",  description: "أجمل القرى الخمس: ملوّنة وتطل على البحر مباشرة",                durationMin: 90  },
+      { areaId: manarola.id,   name: "مسارات المشي الساحلية",            category: "ACTIVITY",  description: "مسارات طبيعية تربط القرى الخمس فوق البحر الأزرق",              durationMin: 240 },
+    ],
+  });
+
+  // ── مزوّدو خدمات إيطاليا ─────────────────────────────────────
+  const milanTransport = await db.serviceProvider.create({
+    data: {
+      name: "NCC Milano — نقل VIP ميلان",
+      type: "TRANSPORT",
+      contactName: "Marco Russo",
+      phone: "+390245678900",
+      city: "ميلان",
+      areaId: milanCity.id,
+      notes: "أسطول مرسيدس E-Class وS-Class — خدمة مطار مالبنسا وليناتي على مدار الساعة",
+    },
+  });
+  await db.serviceProvider.create({
+    data: {
+      name: "Hotel Brera Milano",
+      type: "HOTEL",
+      contactName: "Giulia Ferri",
+      phone: "+390287654321",
+      city: "ميلان",
+      areaId: brera.id,
+      notes: "فندق ٤ نجوم في حي بريرا — ٣٠٠ م من غاليريا فيتوريو",
+    },
+  });
+  const comoBoats = await db.serviceProvider.create({
+    data: {
+      name: "Lake Como Boats — جولات بحيرة كومو",
+      type: "OTHER",
+      contactName: "Luigi Conti",
+      phone: "+390341556677",
+      city: "كومو",
+      areaId: comoCity.id,
+      notes: "قوارب خاصة وجولات جماعية — استقبال العرب يومياً مايو–أكتوبر",
+    },
+  });
+  await db.serviceProvider.create({
+    data: {
+      name: "Dolomites Alpine Tours",
+      type: "TRANSPORT",
+      contactName: "Hans Mayer",
+      phone: "+390471334455",
+      city: "كورتينا دامبيتسو",
+      areaId: dolomitesReg.id,
+      notes: "تنسيق رحلات جبلية وتزلج والاستقبال من مطار فينيسيا للدولوميت",
+    },
+  });
+  const gardaTours = await db.serviceProvider.create({
+    data: {
+      name: "Garda Lake Transfers",
+      type: "TRANSPORT",
+      contactName: "Sofia Bianchi",
+      phone: "+390456789012",
+      city: "سيرميوني",
+      areaId: gardaCity.id,
+      notes: "نقل خاص بين قرى البحيرة — قوارب للإيجار بالساعة",
+    },
+  });
+  await db.serviceProvider.create({
+    data: {
+      name: "Cinque Terre Guide — مرشد تشينكوي تيري",
+      type: "OTHER",
+      contactName: "Alessandro Costa",
+      phone: "+390187891234",
+      city: "مونتيروسو",
+      areaId: cinqueCity.id,
+      notes: "مرشد عربي متخصص في مسارات تشينكوي تيري — حجز القطارات المحلية",
+    },
+  });
+  await db.serviceProvider.create({
+    data: {
+      name: "Hotel Giulietta Verona",
+      type: "HOTEL",
+      contactName: "Francesca Rossi",
+      phone: "+390457890123",
+      city: "فيرونا",
+      areaId: veronaCity.id,
+      notes: "فندق ٤ نجوم في المدينة القديمة — ٥ دقائق من الأرينا الرومانية",
+    },
+  });
+
+  // سائقو إيطاليا
+  await db.driver.create({
+    data: {
+      name: "Antonio Ferrari",
+      phone: "+393301234567",
+      city: "ميلان",
+      vehicleType: "مرسيدس V-Class",
+      vehiclePlate: "MI 485 KX",
+      capacity: 7,
+      areaId: milanCity.id,
+      providerId: milanTransport.id,
+      notes: "سائق VIP ميلان — يتحدث العربية والإنجليزية، خبرة ١٢ سنة",
+    },
+  });
+  await db.driver.create({
+    data: {
+      name: "Giuseppe Ricci",
+      phone: "+393387654321",
+      city: "ميلان / كومو",
+      vehicleType: "BMW 7 Series",
+      vehiclePlate: "MI 221 GT",
+      capacity: 4,
+      areaId: milanCity.id,
+      notes: "يغطي ميلان وبحيرة كومو — سائق مطار ومرشد غير رسمي",
+    },
+  });
+  await db.driver.create({
+    data: {
+      name: "Roberto Marino",
+      phone: "+393456789012",
+      city: "فيرونا",
+      vehicleType: "فان فيات دوكاتو",
+      vehiclePlate: "VR 339 LM",
+      capacity: 8,
+      areaId: veronaCity.id,
+      notes: "يغطي فيرونا وبحيرة غاردا — مثالي لمجموعات صغيرة",
+    },
+  });
+
   // ── برنامج إدنبرة ٧ أيام ─────────────────────────────────────
   await createTour({
     slug: "edinburgh-7-days",

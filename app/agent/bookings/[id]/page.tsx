@@ -30,7 +30,11 @@ export default async function AgentBookingDetailPage({
       },
       transfers: {
         orderBy: { date: "asc" },
-        include: { driver: true, provider: { select: { name: true } } },
+        include: {
+          driver: true,
+          provider: { select: { name: true } },
+          area: { select: { name: true } },
+        },
       },
       messages: { orderBy: { createdAt: "asc" } },
       milestones: { orderBy: { sortOrder: "asc" } },
@@ -59,6 +63,8 @@ export default async function AgentBookingDetailPage({
         providers={[]}
         agents={[]}
         admins={[]}
+        areas={[]}
+        areaParents={{}}
         appUrl={process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}
       />
     </>

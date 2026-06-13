@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/shared/misc";
 import { FormDialog } from "@/components/shared/form-dialog";
 import { Field } from "@/components/shared/field";
 import { NativeSelect, enumOptions } from "@/components/shared/native-select";
+import { AreaSelect, type AreaOption } from "@/components/shared/area-select";
+import { loadAreaData } from "@/lib/areas";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,13 @@ import {
 } from "@/components/ui/table";
 import type { ServiceProvider } from "@prisma/client";
 
-function ProviderFormFields({ value }: { value?: ServiceProvider }) {
+function ProviderFormFields({
+  value,
+  areas,
+}: {
+  value?: ServiceProvider;
+  areas: AreaOption[];
+}) {
   return (
     <>
       {value && <input type="hidden" name="id" value={value.id} />}
@@ -50,9 +58,18 @@ function ProviderFormFields({ value }: { value?: ServiceProvider }) {
           <Input name="city" defaultValue={value?.city ?? ""} />
         </Field>
       </div>
-      <Field label={ar.fields.email} name="email">
-        <Input name="email" type="email" dir="ltr" defaultValue={value?.email ?? ""} />
-      </Field>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label={ar.fields.serviceArea}
+          name="areaId"
+          hint="منطقة عمل المزوّد — يظهر مقترحاً عند إسناد النقل فيها"
+        >
+          <AreaSelect name="areaId" areas={areas} defaultValue={value?.areaId} />
+        </Field>
+        <Field label={ar.fields.email} name="email">
+          <Input name="email" type="email" dir="ltr" defaultValue={value?.email ?? ""} />
+        </Field>
+      </div>
       <Field label={ar.fields.notes} name="notes">
         <Textarea name="notes" defaultValue={value?.notes ?? ""} rows={2} />
       </Field>
@@ -71,10 +88,16 @@ function ProviderFormFields({ value }: { value?: ServiceProvider }) {
 
 export default async function AdminProvidersPage() {
   await requireAdmin();
-  const providers = await db.serviceProvider.findMany({
-    orderBy: { name: "asc" },
-    include: { _count: { select: { drivers: true, transfers: true } } },
-  });
+  const [providers, { options: areas }] = await Promise.all([
+    db.serviceProvider.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        area: { select: { name: true } },
+        _count: { select: { drivers: true, transfers: true } },
+      },
+    }),
+    loadAreaData(),
+  ]);
 
   return (
     <>
@@ -93,7 +116,7 @@ export default async function AdminProvidersPage() {
               </Button>
             }
           >
-            <ProviderFormFields />
+            <ProviderFormFields areas={areas} />
           </FormDialog>
         }
       />
@@ -110,7 +133,7 @@ export default async function AdminProvidersPage() {
                   <TableHead>{ar.fields.type}</TableHead>
                   <TableHead>{ar.fields.contactName}</TableHead>
                   <TableHead>{ar.fields.phone}</TableHead>
-                  <TableHead>{ar.fields.city}</TableHead>
+                  <TableHead>{ar.fields.serviceArea}</TableHead>
                   <TableHead>السائقون</TableHead>
                   <TableHead>{ar.fields.status}</TableHead>
                   <TableHead className="w-24"></TableHead>
@@ -127,7 +150,7 @@ export default async function AdminProvidersPage() {
                     </TableCell>
                     <TableCell>{provider.contactName ?? "—"}</TableCell>
                     <TableCell dir="ltr">{provider.phone ?? "—"}</TableCell>
-                    <TableCell>{provider.city ?? "—"}</TableCell>
+                    <TableCell>{provider.area?.name ?? provider.city ?? "—"}</TableCell>
                     <TableCell>{provider._count.drivers}</TableCell>
                     <TableCell>
                       <Badge
@@ -152,7 +175,7 @@ export default async function AdminProvidersPage() {
                             </Button>
                           }
                         >
-                          <ProviderFormFields value={provider} />
+                          <ProviderFormFields value={provider} areas={areas} />
                         </FormDialog>
                         <ConfirmDeleteButton
                           action={deleteProvider.bind(null, provider.id)}

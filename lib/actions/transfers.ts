@@ -34,6 +34,7 @@ const transferSchema = z.object({
   fromLocation: text(),
   toLocation: text(),
   pax: requiredInt(1),
+  areaId: optionalText,
   vehicleType: optionalText,
   driverId: optionalText,
   providerId: optionalText,
@@ -50,7 +51,8 @@ export async function saveTransfer(
 
   const parsed = parseForm(transferSchema, formData);
   if (!parsed.success) return parsed.state;
-  const { id, bookingId, driverId, providerId, price, ...data } = parsed.data;
+  const { id, bookingId, driverId, providerId, price, areaId, ...data } =
+    parsed.data;
 
   const booking = await db.bookingRequest.findUnique({ where: { id: bookingId } });
   if (!booking) return { ok: false, error: "الحجز غير موجود" };
@@ -72,16 +74,17 @@ export async function saveTransfer(
         ...(driverId || providerId ? { status: "ASSIGNED" } : {}),
       }
     : {};
+  const base = { ...data, areaId: areaId || null };
 
   if (id) {
     const existing = await db.transfer.findUnique({ where: { id } });
     if (!existing || existing.bookingId !== bookingId) {
       return { ok: false, error: "غير موجود" };
     }
-    await db.transfer.update({ where: { id }, data: { ...data, ...assignment } });
+    await db.transfer.update({ where: { id }, data: { ...base, ...assignment } });
   } else {
     await db.transfer.create({
-      data: { bookingId, ...data, ...assignment },
+      data: { bookingId, ...base, ...assignment },
     });
   }
 

@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/shared/misc";
 import { FormDialog } from "@/components/shared/form-dialog";
 import { Field } from "@/components/shared/field";
 import { NativeSelect } from "@/components/shared/native-select";
+import { AreaSelect, type AreaOption } from "@/components/shared/area-select";
+import { loadAreaData } from "@/lib/areas";
 import { ConfirmDeleteButton } from "@/components/shared/confirm-delete";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,9 +28,11 @@ import type { Driver, ServiceProvider } from "@prisma/client";
 
 function DriverFormFields({
   providers,
+  areas,
   value,
 }: {
   providers: ServiceProvider[];
+  areas: AreaOption[];
   value?: Driver;
 }) {
   return (
@@ -58,20 +62,27 @@ function DriverFormFields({
         </Field>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
+        <Field
+          label={ar.fields.serviceArea}
+          name="areaId"
+          hint="اربط السائق بمنطقة أو مدينة — يظهر مقترحاً عند إسناد النقل فيها"
+        >
+          <AreaSelect name="areaId" areas={areas} defaultValue={value?.areaId} />
+        </Field>
         <Field label={ar.fields.vehiclePlate} name="vehiclePlate">
           <Input name="vehiclePlate" dir="ltr" defaultValue={value?.vehiclePlate ?? ""} />
         </Field>
-        <Field label="تابع لمزوّد" name="providerId">
-          <NativeSelect name="providerId" defaultValue={value?.providerId ?? ""}>
-            <option value="">مستقل</option>
-            {providers.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
-          </NativeSelect>
-        </Field>
       </div>
+      <Field label="تابع لمزوّد" name="providerId">
+        <NativeSelect name="providerId" defaultValue={value?.providerId ?? ""}>
+          <option value="">مستقل</option>
+          {providers.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </NativeSelect>
+      </Field>
       <Field label={ar.fields.notes} name="notes">
         <Textarea name="notes" defaultValue={value?.notes ?? ""} rows={2} />
       </Field>
@@ -90,11 +101,12 @@ function DriverFormFields({
 
 export default async function AdminDriversPage() {
   await requireAdmin();
-  const [drivers, providers] = await Promise.all([
+  const [drivers, providers, { options: areas }] = await Promise.all([
     db.driver.findMany({
       orderBy: { name: "asc" },
       include: {
         provider: { select: { name: true } },
+        area: { select: { name: true } },
         _count: { select: { transfers: true } },
       },
     }),
@@ -102,6 +114,7 @@ export default async function AdminDriversPage() {
       where: { type: "TRANSPORT", status: "ACTIVE" },
       orderBy: { name: "asc" },
     }),
+    loadAreaData(),
   ]);
 
   return (
@@ -121,7 +134,7 @@ export default async function AdminDriversPage() {
               </Button>
             }
           >
-            <DriverFormFields providers={providers} />
+            <DriverFormFields providers={providers} areas={areas} />
           </FormDialog>
         }
       />
@@ -136,7 +149,7 @@ export default async function AdminDriversPage() {
                 <TableRow>
                   <TableHead>{ar.fields.name}</TableHead>
                   <TableHead>{ar.fields.phone}</TableHead>
-                  <TableHead>{ar.fields.city}</TableHead>
+                  <TableHead>{ar.fields.serviceArea}</TableHead>
                   <TableHead>المركبة</TableHead>
                   <TableHead>{ar.fields.provider}</TableHead>
                   <TableHead>الرحلات</TableHead>
@@ -149,7 +162,7 @@ export default async function AdminDriversPage() {
                   <TableRow key={driver.id}>
                     <TableCell className="font-medium">{driver.name}</TableCell>
                     <TableCell dir="ltr">{driver.phone}</TableCell>
-                    <TableCell>{driver.city ?? "—"}</TableCell>
+                    <TableCell>{driver.area?.name ?? driver.city ?? "—"}</TableCell>
                     <TableCell>
                       {driver.vehicleType ?? "—"}
                       {driver.capacity ? ` (${driver.capacity})` : ""}
@@ -179,7 +192,11 @@ export default async function AdminDriversPage() {
                             </Button>
                           }
                         >
-                          <DriverFormFields providers={providers} value={driver} />
+                          <DriverFormFields
+                            providers={providers}
+                            areas={areas}
+                            value={driver}
+                          />
                         </FormDialog>
                         <ConfirmDeleteButton
                           action={deleteDriver.bind(null, driver.id)}
