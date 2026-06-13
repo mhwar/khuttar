@@ -25,7 +25,7 @@ export default async function AgentBookingsPage({
   const [bookings, programs] = await Promise.all([
     db.bookingRequest.findMany({
       where: {
-        agentId: profile.id,
+        OR: [{ agentId: profile.id }, { managerAgentId: profile.id }],
         ...(status && BOOKING_STATUSES.includes(status as never)
           ? { status }
           : {}),
@@ -48,7 +48,7 @@ export default async function AgentBookingsPage({
     <>
       <PageHeader
         title={ar.agent.myBookings}
-        description="الحجوزات المنسوبة لك — عبر رابط الإحالة أو التي أنشأتها بنفسك"
+        description="الحجوزات المنسوبة لك أو التي تديرها نيابة عن المنصة"
         actions={
           profile.status === "APPROVED" ? (
             <FormDialog

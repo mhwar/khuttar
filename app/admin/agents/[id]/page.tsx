@@ -148,6 +148,19 @@ export default async function AdminAgentDetailPage({
                   />
                 </Field>
               </div>
+              <Field
+                label={ar.fields.manageCommissionRate}
+                htmlFor="manageCommissionRate"
+                hint="تُطبّق عندما يدير الوكيل حجزاً من عملاء المنصة"
+              >
+                <Input
+                  id="manageCommissionRate"
+                  name="manageCommissionRate"
+                  type="number"
+                  step="0.5"
+                  defaultValue={agent.manageCommissionRate}
+                />
+              </Field>
               <Field label={ar.fields.status} htmlFor="status">
                 <NativeSelect id="status" name="status" defaultValue={agent.status}>
                   {enumOptions(AGENT_STATUSES, LABELS.agentStatus)}

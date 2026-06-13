@@ -50,15 +50,17 @@ model AgentProfile {
   city            String?
   commissionRate  Float    @default(10) // % of totalPrice credited on CONFIRMED
   platformFeeRate Float    @default(5) // % of totalPrice debited on CONFIRMED
+  manageCommissionRate Float @default(5) // % credited when only managing a platform booking
   status               String   @default("PENDING") // PENDING | APPROVED | SUSPENDED
   allowStudyPrograms   Boolean  @default(false)
   notes                String?
   createdAt            DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  programs      Program[]
-  bookings      BookingRequest[]
-  ledgerEntries LedgerEntry[]
+  programs        Program[]
+  bookings        BookingRequest[]
+  managedBookings BookingRequest[] @relation("ManagedBookings")
+  ledgerEntries   LedgerEntry[]
 }
 
 model AgentApplication {
@@ -259,6 +261,8 @@ model BookingRequest {
   source        String        @default("WEBSITE") // WEBSITE | AGENT | ADMIN
   agentId       String?
   agent         AgentProfile? @relation(fields: [agentId], references: [id], onDelete: SetNull)
+  managerAgentId String?
+  managerAgent   AgentProfile? @relation("ManagedBookings", fields: [managerAgentId], references: [id], onDelete: SetNull)
   assignedToId  String?
   assignedTo    User?         @relation("AssignedBookings", fields: [assignedToId], references: [id], onDelete: SetNull)
   totalPrice    Int? // SAR whole
@@ -271,10 +275,41 @@ model BookingRequest {
   payments      Payment[]
   transfers     Transfer[]
   ledgerEntries LedgerEntry[]
+  messages      BookingMessage[]
+  milestones    BookingMilestone[]
 
   @@index([status])
   @@index([agentId])
+  @@index([managerAgentId])
   @@index([createdAt])
+}
+
+model BookingMessage {
+  id          String         @id @default(cuid())
+  bookingId   String
+  booking     BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorRole  String // CUSTOMER | AGENT | ADMIN
+  authorName  String
+  body        String
+  readByStaff Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+
+  @@index([bookingId])
+}
+
+model BookingMilestone {
+  id        String         @id @default(cuid())
+  bookingId String
+  booking   BookingRequest @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  title     String
+  status    String         @default("PENDING") // PENDING | IN_PROGRESS | DONE
+  note      String?
+  dueDate   DateTime?
+  doneAt    DateTime?
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now())
+
+  @@index([bookingId])
 }
 
 model Payment {

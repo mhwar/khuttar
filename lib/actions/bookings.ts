@@ -5,6 +5,7 @@ import { z } from "zod";
 import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getCurrentUser, requireAdmin, requireApprovedAgent } from "@/lib/auth";
+import { bookingAgentAccess } from "@/lib/booking-access";
 import {
   ADMIN_ONLY_BOOKING_STATUSES,
   BOOKING_TRANSITIONS,
@@ -169,6 +170,7 @@ const bookingUpdateSchema = z.object({
   preferredDate: optionalDate,
   internalNotes: optionalText,
   agentId: optionalText,
+  managerAgentId: optionalText,
   assignedToId: optionalText,
 });
 
@@ -181,14 +183,16 @@ export async function updateBooking(
 
   const parsed = parseForm(bookingUpdateSchema, formData);
   if (!parsed.success) return parsed.state;
-  const { id, agentId, assignedToId, ...data } = parsed.data;
+  const { id, agentId, managerAgentId, assignedToId, ...data } = parsed.data;
 
   const booking = await db.bookingRequest.findUnique({ where: { id } });
   if (!booking) return { ok: false, error: "الحجز غير موجود" };
 
   if (user.role === "AGENT") {
     const { profile } = await requireApprovedAgent();
-    if (booking.agentId !== profile.id) return { ok: false, error: "غير مصرح" };
+    if (!bookingAgentAccess(booking, profile.id)) {
+      return { ok: false, error: "غير مصرح" };
+    }
     // Agents can adjust price/date/notes but not reassignment fields.
     await db.bookingRequest.update({ where: { id }, data });
   } else {
@@ -197,6 +201,7 @@ export async function updateBooking(
       data: {
         ...data,
         agentId: agentId || null,
+        managerAgentId: managerAgentId || null,
         assignedToId: assignedToId || null,
       },
     });
@@ -221,13 +226,15 @@ export async function setBookingStatus(
 
   const booking = await db.bookingRequest.findUnique({
     where: { id: bookingId },
-    include: { agent: true },
+    include: { agent: true, managerAgent: true },
   });
   if (!booking) return { ok: false, error: "الحجز غير موجود" };
 
   if (user.role === "AGENT") {
     const { profile } = await requireApprovedAgent();
-    if (booking.agentId !== profile.id) return { ok: false, error: "غير مصرح" };
+    if (!bookingAgentAccess(booking, profile.id)) {
+      return { ok: false, error: "غير مصرح" };
+    }
     if (ADMIN_ONLY_BOOKING_STATUSES.includes(next)) {
       return { ok: false, error: "هذه الحالة من صلاحيات الإدارة" };
     }
@@ -249,17 +256,21 @@ export async function setBookingStatus(
         data: { status: next, confirmedAt: new Date() },
       });
 
-      // Idempotent: COMMISSION/PLATFORM_FEE are generated at most once per
-      // booking, even across cancel → re-confirm cycles.
+      // Idempotent: ledger entries are generated at most once per agent per
+      // booking, even across cancel → re-confirm cycles. Scoped by agentId so
+      // the referral and manager entries don't shadow each other.
+      const total = booking.totalPrice!;
+
+      // Referral agent: full commission minus the platform fee.
       if (booking.agentId && booking.agent?.status === "APPROVED") {
         const existing = await tx.ledgerEntry.findFirst({
           where: {
             bookingId,
+            agentId: booking.agentId,
             type: { in: ["COMMISSION", "PLATFORM_FEE"] },
           },
         });
         if (!existing) {
-          const total = booking.totalPrice!;
           const commission = Math.round(
             (total * booking.agent.commissionRate) / 100,
           );
@@ -283,6 +294,38 @@ export async function setBookingStatus(
                 createdById: user.id,
               },
             ],
+          });
+        }
+      }
+
+      // Delegated manager (platform's own customer): a management commission at
+      // a separate rate, with no platform fee. Skipped when the manager is also
+      // the referral agent to avoid double-paying.
+      if (
+        booking.managerAgentId &&
+        booking.managerAgentId !== booking.agentId &&
+        booking.managerAgent?.status === "APPROVED"
+      ) {
+        const existing = await tx.ledgerEntry.findFirst({
+          where: {
+            bookingId,
+            agentId: booking.managerAgentId,
+            type: "COMMISSION",
+          },
+        });
+        if (!existing) {
+          const manageFee = Math.round(
+            (total * booking.managerAgent.manageCommissionRate) / 100,
+          );
+          await tx.ledgerEntry.create({
+            data: {
+              agentId: booking.managerAgentId,
+              bookingId,
+              type: "COMMISSION",
+              amount: manageFee,
+              note: `عمولة إدارة حجز ${booking.code}`,
+              createdById: user.id,
+            },
           });
         }
       }

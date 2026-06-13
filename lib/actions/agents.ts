@@ -92,6 +92,7 @@ const updateAgentSchema = z.object({
   status: zEnum.agentStatus,
   commissionRate: requiredFloat(0, 100),
   platformFeeRate: requiredFloat(0, 100),
+  manageCommissionRate: requiredFloat(0, 100),
   companyName: optionalText,
   city: optionalText,
   phone: text(9),
