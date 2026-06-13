@@ -173,6 +173,15 @@ export default async function AdminAgentDetailPage({
                   rows={2}
                 />
               </Field>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  name="allowStudyPrograms"
+                  defaultChecked={agent.allowStudyPrograms}
+                  className="size-4 accent-primary"
+                />
+                السماح بإنشاء البرامج الدراسية
+              </label>
               <SubmitButton>{ar.actions.save}</SubmitButton>
             </ActionForm>
           </CardContent>
