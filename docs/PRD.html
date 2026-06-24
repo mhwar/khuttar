@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وثيقة متطلبات المنتج — منصة خطار</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a7f8c;
+    --primary-dark: #145f6a;
+    --primary-light: #e6f4f6;
+    --gold: #c9972a;
+    --text: #1a1a1a;
+    --text-muted: #555;
+    --border: #dde8ea;
+    --bg: #f9fefe;
+    --card: #ffffff;
+    --radius: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    background: var(--bg);
+    direction: rtl;
+  }
+
+  /* ─── Cover / Header ─── */
+  .cover {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, #1a9aaa 100%);
+    color: white;
+    padding: 60px 48px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  .cover-inner { position: relative; max-width: 820px; margin: 0 auto; }
+  .cover-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 50px;
+    padding: 6px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 28px;
+    backdrop-filter: blur(4px);
+  }
+  .cover-logo span { font-size: 18px; }
+  .cover h1 {
+    font-size: 38px;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .cover-subtitle {
+    font-size: 17px;
+    opacity: 0.8;
+    margin-bottom: 40px;
+  }
+  .cover-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cover-meta-item {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .cover-meta-item strong { display: block; font-size: 11px; opacity: 0.7; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ─── Layout ─── */
+  .container { max-width: 900px; margin: 0 auto; padding: 48px 32px; }
+
+  /* ─── TOC ─── */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 48px;
+  }
+  .toc h2 { font-size: 16px; font-weight: 700; color: var(--primary); margin-bottom: 16px; }
+  .toc ol { padding-right: 20px; }
+  .toc li { margin-bottom: 6px; }
+  .toc a { color: var(--text); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  .toc a:hover { color: var(--primary); }
+
+  /* ─── Sections ─── */
+  section { margin-bottom: 56px; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-num {
+    background: var(--primary);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h2 { font-size: 22px; font-weight: 800; color: var(--primary-dark); }
+  h3 { font-size: 17px; font-weight: 700; color: var(--text); margin: 28px 0 12px; }
+  h4 { font-size: 15px; font-weight: 700; color: var(--text-muted); margin: 20px 0 10px; }
+  p { margin-bottom: 12px; color: var(--text-muted); }
+
+  /* ─── Tables ─── */
+  .table-wrap { overflow-x: auto; margin: 16px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead tr { background: var(--primary); color: white; }
+  thead th { padding: 11px 14px; text-align: right; font-weight: 600; font-size: 13px; }
+  tbody tr:nth-child(even) { background: var(--primary-light); }
+  tbody tr:hover { background: #d4ecef; }
+  tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tbody td:first-child { font-weight: 600; color: var(--primary-dark); }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  @media (max-width: 600px) { .card-grid { grid-template-columns: 1fr; } }
+  .card h4 { margin-top: 0; color: var(--primary); }
+
+  /* ─── Code / Flow ─── */
+  pre, code {
+    font-family: 'Courier New', monospace;
+    direction: ltr;
+    text-align: left;
+  }
+  pre {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 16px 0;
+    color: #333;
+  }
+  code {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  /* ─── Lists ─── */
+  ul, ol { padding-right: 24px; margin-bottom: 12px; }
+  li { margin-bottom: 5px; color: var(--text-muted); }
+  li strong { color: var(--text); }
+
+  /* ─── Checklist ─── */
+  .checklist { list-style: none; padding: 0; }
+  .checklist li { display: flex; gap: 8px; align-items: flex-start; padding: 4px 0; }
+  .checklist li::before { content: '✅'; flex-shrink: 0; margin-top: 2px; }
+  .checklist li.todo::before { content: '⬜'; }
+
+  /* ─── Milestone list ─── */
+  .milestone-list { list-style: none; padding: 0; counter-reset: ms; }
+  .milestone-list li {
+    counter-increment: ms;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .milestone-list li::before {
+    content: counter(ms);
+    background: var(--primary);
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ─── Flow Diagram ─── */
+  .flow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 16px 0;
+    text-align: center;
+    font-size: 14px;
+  }
+  .flow-step {
+    display: inline-block;
+    background: var(--primary-light);
+    border: 2px solid var(--primary);
+    color: var(--primary-dark);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    margin: 4px;
+  }
+  .flow-step.admin { background: #fff3cd; border-color: var(--gold); color: #7d5a00; }
+  .flow-step.terminal { background: #f0f0f0; border-color: #999; color: #555; }
+  .flow-arrow { color: var(--primary); font-size: 18px; margin: 0 4px; }
+
+  /* ─── Highlight box ─── */
+  .highlight {
+    background: var(--primary-light);
+    border-right: 4px solid var(--primary);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+  }
+  .highlight strong { color: var(--primary-dark); }
+
+  /* ─── Footer ─── */
+  .doc-footer {
+    text-align: center;
+    padding: 32px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 64px;
+  }
+
+  /* ─── Print ─── */
+  @media print {
+    body { background: white; font-size: 13px; }
+    .cover { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .toc { border-right-color: var(--primary); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    section { page-break-inside: avoid; }
+    thead { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .container { padding: 24px 16px; }
+    a { color: inherit; text-decoration: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="cover-logo"><span>🧭</span> خطار — Khattar</div>
+    <h1>وثيقة متطلبات المنتج</h1>
+    <p class="cover-subtitle">Product Requirements Document (PRD)</p>
+    <div class="cover-meta">
+      <div class="cover-meta-item"><strong>الإصدار</strong> v1.0</div>
+      <div class="cover-meta-item"><strong>التاريخ</strong> يونيو 2026</div>
+      <div class="cover-meta-item"><strong>الحالة</strong> MVP مكتمل ومنشور</div>
+      <div class="cover-meta-item"><strong>المنصة</strong> Next.js 16 + Cloudflare Workers</div>
+      <div class="cover-meta-item"><strong>اللغة الأساسية</strong> العربية (RTL)</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- TOC -->
+<div class="toc">
+  <h2>📋 فهرس المحتوى</h2>
+  <ol>
+    <li><a href="#s1">الرؤية والهدف</a></li>
+    <li><a href="#s2">المشكلة والفرصة</a></li>
+    <li><a href="#s3">المستخدمون المستهدفون</a></li>
+    <li><a href="#s4">ميزات المنتج الحالية</a></li>
+    <li><a href="#s5">منطق الأعمال الجوهري</a></li>
+    <li><a href="#s6">البنية التقنية</a></li>
+    <li><a href="#s7">المتطلبات غير الوظيفية</a></li>
+    <li><a href="#s8">مقاييس النجاح</a></li>
+    <li><a href="#s9">خارطة الطريق</a></li>
+    <li><a href="#s10">الملاحق</a></li>
+  </ol>
+</div>
+
+<!-- Section 1 -->
+<section id="s1">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2>الرؤية والهدف</h2>
+  </div>
+
+  <h3>الرؤية</h3>
+  <p>منصة رقمية سعودية متكاملة تُمكّن المسافر العربي من اكتشاف البرامج السياحية والدراسية بالخارج — من التصفح والاختيار حتى المتابعة اليومية — في مكانٍ واحد وبشفافية تامة.</p>
+
+  <h3>الهدف</h3>
+  <p>بناء منظومة تجمع بين <strong>العملاء</strong> الباحثين عن تجارب سفر منظّمة، و<strong>الوكلاء</strong> الراغبين في تسويق برامجهم، و<strong>إدارة المنصة</strong> التي تُشرف على العمليات وتضمن الجودة — مع نظام مالي واضح لتوزيع العمولات وتتبّع المدفوعات.</p>
+
+  <div class="highlight">
+    <strong>الوضع الحالي:</strong> المنتج في مرحلة MVP مكتمل ومنشور بالكامل، يشمل جميع الميزات الموثّقة في هذه الوثيقة.
+  </div>
+</section>
+
+<!-- Section 2 -->
+<section id="s2">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2>المشكلة والفرصة</h2>
+  </div>
+
+  <h3>المشكلة</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>الجهة</th><th>المشكلة</th></tr></thead>
+    <tbody>
+      <tr><td>العميل</td><td>لا توجد منصة عربية موثوقة تعرض جداول الرحلات اليومية بشفافية كاملة قبل الحجز</td></tr>
+      <tr><td>الوكيل</td><td>أدوات إدارة البرامج والمتابعة المالية مبعثرة أو غير موجودة بالعربية</td></tr>
+      <tr><td>مزوّد الخدمة</td><td>صعوبة بناء قاعدة عملاء وتتبّع العمولات بدون نظام احترافي</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>الفرصة</h3>
+  <ul>
+    <li>سوق السياحة الداخلية السعودية في نمو متسارع (<strong>رؤية 2030</strong>)</li>
+    <li>الطلب المتزايد على برامج الدراسة بالخارج من الشباب السعودي</li>
+    <li>غياب منصة عربية أولى (RTL-native) تجمع السياحة والدراسة معاً</li>
+    <li>نموذج عمل قابل للتوسع عبر شبكة الوكلاء</li>
+  </ul>
+</section>
+
+<!-- Section 3 -->
+<section id="s3">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2>المستخدمون المستهدفون</h2>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>👤 العميل العادي</h4>
+      <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr><td>من هو</td><td>مسافر سعودي أو عربي</td></tr>
+          <tr><td>هدفه</td><td>إيجاد برنامج مناسب والحجز بسهولة</td></tr>
+          <tr><td>احتياجاته</td><td>جدول واضح، سعر شفاف، متابعة مستمرة</td></tr>
+          <tr><td>نقطة ألمه</td><td>غياب التفاصيل والمتابعة بعد الدفع</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:12px;font-size:13px;color:var(--text-muted);">تصفّح ← اختيار ← جدول يومي ← حجز ← رمز متابعة ← <code>/b/[code]</code></p>
+    </div>
+    <div class="card">
+      <h4>🤝 الوكيل / الشريك</h4>
+      <div class="table-wrap">
+      <table>
+        <tbody>
+          <tr><td>من هو</td><td>شركة سياحة أو فرد يقدّم خدمات السفر</td></tr>
+          <tr><td>هدفه</td><td>بناء برامجه وتسويقها وتتبّع عمولاته</td></tr>
+          <tr><td>احتياجاته</td><td>أدوات إنشاء، رابط إحالة، كشف حساب</td></tr>
+          <tr><td>نقطة ألمه</td><td>غياب نظام موحّد للبرامج والمالية</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:12px;font-size:13px;color:var(--text-muted);">تقديم ← موافقة ← إنشاء برامج ← إحالة عملاء ← عمولات</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h4>⚙️ المشرف (Admin)</h4>
+    <div class="table-wrap">
+    <table>
+      <tbody>
+        <tr><td>من هو</td><td>فريق تشغيل منصة خطار</td></tr>
+        <tr><td>هدفه</td><td>الإشراف على كامل العمليات وضمان جودة المنتج</td></tr>
+        <tr><td>مسؤولياته</td><td>الموافقة على الوكلاء والبرامج، تأكيد الحجوزات، إدارة المدفوعات والسجل المالي</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- Section 4 -->
+<section id="s4">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2>ميزات المنتج الحالية</h2>
+  </div>
+
+  <h3>4.1 الواجهة العامة (Public)</h3>
+
+  <h4>الصفحة الرئيسية <code>/</code></h4>
+  <ul>
+    <li>Hero section قابل للتخصيص من لوحة التحكم</li>
+    <li>بحث سريع بالنوع (سياحة / دراسة) والوجهة</li>
+    <li>إحصائيات المنصة (الوجهات، البرامج، المدن، الدعم 24/7)</li>
+    <li>بطاقات الفئات الأربع: رحلات داخلية، دولية، دراسة لغة، جامعات وابتعاث</li>
+    <li>البرامج المميزة + الوجهات المختارة</li>
+    <li>قسم "كيف يعمل خطار؟" (3 خطوات)</li>
+    <li>آراء العملاء (Testimonials)</li>
+    <li>قسم الانضمام كوكيل</li>
+  </ul>
+
+  <h4>البرامج السياحية <code>/programs</code></h4>
+  <ul>
+    <li>chip filters أفقية: كل الأنواع / داخلي / دولي</li>
+    <li>فلترة إضافية بالوجهة + عداد النتائج + مسح الفلاتر</li>
+    <li>بطاقة البرنامج: صورة، اسم، ملخص، سعر، المدة، الوجهة</li>
+  </ul>
+
+  <h4>تفاصيل البرنامج <code>/programs/[slug]</code></h4>
+  <ul>
+    <li>صورة غلاف بارزة مع breadcrumb</li>
+    <li>الجدول اليومي التفصيلي: أنشطة، تنقلات، فنادق، وجبات، رحلات جوية بأوقاتها</li>
+    <li>قائمة "يشمل" و"لا يشمل"</li>
+    <li>نموذج طلب الحجز + تواصل واتساب</li>
+    <li>Sticky inner nav للتنقل بين أقسام الصفحة</li>
+  </ul>
+
+  <h4>برامج الدراسة <code>/study</code> و <code>/study/[slug]</code></h4>
+  <ul>
+    <li>chip filters: كل الأنواع / دراسة لغة / جامعي / ابتعاث</li>
+    <li>Hero banner مخصص بـ gradient</li>
+    <li>اسم المعهد، المدينة، المدة، نطاق الرسوم، المتطلبات</li>
+  </ul>
+
+  <h4>الوجهات <code>/destinations</code> و <code>/destinations/[slug]</code></h4>
+  <ul>
+    <li>بطاقات overlay غامرة بلا حدود</li>
+    <li>Hero بارتفاع 60% من الشاشة مع صورة كاملة</li>
+    <li>شجرة المناطق الجغرافية + المعالم السياحية المصنّفة</li>
+    <li>البرامج المتاحة في هذه الوجهة</li>
+  </ul>
+
+  <h4>متابعة الحجز <code>/b/[code]</code></h4>
+  <ul>
+    <li>صفحة عامة لا تتطلب تسجيل دخول</li>
+    <li>حالة الحجز + تفاصيل الرحلة</li>
+    <li>الجدول اليومي من البرنامج المرتبط</li>
+    <li>مؤشر التقدم (Milestones) خاصة لبرامج الدراسة</li>
+    <li>الدفعات: الإجمالي، المدفوع، المتبقي</li>
+    <li>التحويلات المجدولة مع بيانات السائق</li>
+    <li>المحادثة مع فريق الدعم</li>
+  </ul>
+
+  <h3>4.2 لوحة تحكم المشرف (Admin)</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>القسم</th><th>الوظيفة الرئيسية</th></tr></thead>
+    <tbody>
+      <tr><td><code>/admin</code></td><td>إحصائيات، تنبيهات الطلبات الجديدة والتحويلات المعلّقة</td></tr>
+      <tr><td><code>/admin/bookings</code></td><td>إدارة كاملة للحجوزات: حالة، سعر، مدفوعات، تحويلات، رسائل</td></tr>
+      <tr><td><code>/admin/programs</code></td><td>إنشاء/تعديل/الموافقة على البرامج وبناء الجداول اليومية</td></tr>
+      <tr><td><code>/admin/destinations</code></td><td>الوجهات والمناطق والمعالم السياحية</td></tr>
+      <tr><td><code>/admin/agents</code></td><td>إدارة الوكلاء، معدلات العمولة، الرصيد المالي</td></tr>
+      <tr><td><code>/admin/applications</code></td><td>مراجعة طلبات الانضمام والموافقة/الرفض</td></tr>
+      <tr><td><code>/admin/drivers</code></td><td>إدارة السائقين (المركبة، الطاقة، منطقة الخدمة)</td></tr>
+      <tr><td><code>/admin/providers</code></td><td>مزودو الخدمات (نقل، فنادق، أخرى)</td></tr>
+      <tr><td><code>/admin/transfers</code></td><td>نظرة شاملة على جميع التحويلات</td></tr>
+      <tr><td><code>/admin/messages</code></td><td>رسائل التواصل الواردة من العملاء</td></tr>
+      <tr><td><code>/admin/users</code></td><td>حسابات الموظفين</td></tr>
+      <tr><td><code>/admin/settings</code></td><td>إعدادات CMS: Hero، بيانات التواصل</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>4.3 لوحة تحكم الوكيل (Agent)</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>القسم</th><th>الوظيفة الرئيسية</th></tr></thead>
+    <tbody>
+      <tr><td><code>/agent</code></td><td>إحصائيات، رابط الإحالة، أحدث الحجوزات</td></tr>
+      <tr><td><code>/agent/programs</code></td><td>إنشاء وإدارة وجداول البرامج الخاصة</td></tr>
+      <tr><td><code>/agent/bookings</code></td><td>إدارة الحجوزات (حتى QUOTED) + رسائل + تحويلات</td></tr>
+      <tr><td><code>/agent/statement</code></td><td>كشف حساب: الرصيد، العمولات، الرسوم، المصروفات</td></tr>
+      <tr><td><code>/agent/profile</code></td><td>بيانات الحساب، كود الإحالة، معدلات العمولة</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- Section 5 -->
+<section id="s5">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2>منطق الأعمال الجوهري</h2>
+  </div>
+
+  <h3>5.1 دورة حياة الحجز</h3>
+  <div class="flow">
+    <div>
+      <span class="flow-step">NEW</span>
+      <span class="flow-arrow">←</span>
+      <span class="flow-step">CONTACTED</span>
+      <span class="flow-arrow">←</span>
+      <span class="flow-step">QUOTED</span>
+      <span class="flow-arrow">←</span>
+      <span class="flow-step admin">CONFIRMED *</span>
+      <span class="flow-arrow">←</span>
+      <span class="flow-step admin">COMPLETED *</span>
+    </div>
+    <p style="margin-top:12px;font-size:12px;color:#888;">* حصري للمشرف — الوكيل لا يصل إليهما &nbsp;|&nbsp; CANCELLED ممكن في أي مرحلة بواسطة المشرف</p>
+    <p style="margin-top:6px;font-size:12px;color:var(--primary);font-weight:600;">السعر يظهر للعميل عند QUOTED &nbsp;|&nbsp; قيود العمولة تُنشأ عند CONFIRMED</p>
+  </div>
+
+  <h3>5.2 أنواع البرامج</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>النوع</th><th>الفئة</th><th>الحقول المميزة</th><th>المدة</th></tr></thead>
+    <tbody>
+      <tr><td>رحلة داخلية</td><td><code>TOUR / DOMESTIC</code></td><td>سعر/شخص، جدول يومي، يشمل/لا يشمل</td><td>بالأيام</td></tr>
+      <tr><td>رحلة دولية</td><td><code>TOUR / INTERNATIONAL</code></td><td>نفس الداخلية + وجهة دولية</td><td>بالأيام</td></tr>
+      <tr><td>دراسة لغة</td><td><code>STUDY / LANGUAGE</code></td><td>المعهد، الرسوم (min/max)</td><td>بالأسابيع</td></tr>
+      <tr><td>قبول جامعي</td><td><code>STUDY / UNIVERSITY</code></td><td>الجامعة، المتطلبات، الخدمات</td><td>بالأسابيع</td></tr>
+      <tr><td>ابتعاث</td><td><code>STUDY / SCHOLARSHIP</code></td><td>المنح، 7 مراحل افتراضية</td><td>بالأسابيع</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>5.3 نظام العمولات والسجل المالي</h3>
+  <div class="highlight">
+    عند تأكيد الحجز (CONFIRMED) تُنشأ تلقائياً قيدا السجل المالي للوكيل.
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>نوع القيد</th><th>الحساب</th><th>مثال (حجز 5,000 ر.س)</th></tr></thead>
+    <tbody>
+      <tr><td>COMMISSION</td><td><code>+ totalPrice × commissionRate%</code></td><td>+500 ر.س (10%)</td></tr>
+      <tr><td>PLATFORM_FEE</td><td><code>− totalPrice × platformFeeRate%</code></td><td>−250 ر.س (5%)</td></tr>
+      <tr><td><strong>صافي الوكيل</strong></td><td></td><td><strong>+250 ر.س</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>نوع القيد</th><th>الاتجاه</th><th>من يُنشئه</th></tr></thead>
+    <tbody>
+      <tr><td>COMMISSION</td><td>+ لصالح الوكيل</td><td>تلقائي عند CONFIRMED</td></tr>
+      <tr><td>PLATFORM_FEE</td><td>− خصم على الوكيل</td><td>تلقائي عند CONFIRMED</td></tr>
+      <tr><td>PAYOUT</td><td>− صرف للوكيل</td><td>المشرف يدوياً</td></tr>
+      <tr><td>ADJUSTMENT</td><td>± تصحيح</td><td>المشرف يدوياً</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>5.4 المراحل (Milestones) — خاص ببرامج الدراسة</h3>
+  <p>عند تأكيد حجز برنامج دراسي، تُنشأ تلقائياً 7 مراحل:</p>
+  <ol class="milestone-list">
+    <li>تجهيز الملف والمستندات</li>
+    <li>تقديم طلب القبول</li>
+    <li>استلام خطاب القبول</li>
+    <li>إجراءات التأشيرة الدراسية</li>
+    <li>تأمين السكن</li>
+    <li>حجز الطيران والاستقبال</li>
+    <li>الوصول وبدء الدراسة</li>
+  </ol>
+  <p>الحالات: <code>PENDING → IN_PROGRESS → DONE</code></p>
+
+  <h3>5.5 نظام الإحالة</h3>
+  <ul>
+    <li>كل وكيل يملك <code>referralCode</code> فريد (مثال: <code>KH1A2B3</code>)</li>
+    <li>رابط الإحالة: <code>{domain}/programs?ref={referralCode}</code></li>
+    <li>عند الحجز عبر الرابط: تُنسب الحجز للوكيل تلقائياً</li>
+    <li>رموز غير صالحة تُتجاهل بصمت</li>
+  </ul>
+
+  <h3>5.6 دورة حياة الوكيل</h3>
+  <div class="flow">
+    <span class="flow-step">تقديم عام</span>
+    <span class="flow-arrow">←</span>
+    <span class="flow-step">مراجعة المشرف</span>
+    <span class="flow-arrow">←</span>
+    <span class="flow-step">PENDING</span>
+    <span class="flow-arrow">←</span>
+    <span class="flow-step" style="background:#d4f5e9;border-color:#1a9a6a;color:#0d5c3f;">APPROVED</span>
+    <span style="font-size:13px;color:#888;margin-right:8px;">(أو SUSPENDED)</span>
+  </div>
+
+  <h3>5.7 دورة حياة البرنامج</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>الحالة</th><th>المعنى</th><th>الرؤية (Visibility)</th></tr></thead>
+    <tbody>
+      <tr><td>DRAFT</td><td>مسودة غير منشورة</td><td>لا يظهر</td></tr>
+      <tr><td>PUBLISHED</td><td>منشور</td><td>PUBLIC / UNLISTED / PRIVATE</td></tr>
+      <tr><td>ARCHIVED</td><td>مؤرشف</td><td>لا يظهر</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:13px;">برامج الوكلاء تتطلب <code>isApproved = true</code> من المشرف قبل الظهور للعملاء.</p>
+</section>
+
+<!-- Section 6 -->
+<section id="s6">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <h2>البنية التقنية</h2>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>الطبقة</th><th>التقنية</th></tr></thead>
+    <tbody>
+      <tr><td>Frontend</td><td>Next.js 16 (App Router) + React</td></tr>
+      <tr><td>Styling</td><td>Tailwind CSS v4 + shadcn/ui</td></tr>
+      <tr><td>Database</td><td>PostgreSQL + Prisma 6 ORM</td></tr>
+      <tr><td>Hosting</td><td>Cloudflare Workers + @opennextjs/cloudflare</td></tr>
+      <tr><td>DB Proxy</td><td>Cloudflare Hyperdrive</td></tr>
+      <tr><td>Auth</td><td>Session-based (SHA256 token, HTTP-only cookie)</td></tr>
+      <tr><td>Passwords</td><td>WebCrypto PBKDF2</td></tr>
+      <tr><td>Language</td><td>TypeScript</td></tr>
+      <tr><td>Font</td><td>Cairo Variable (عربي)</td></tr>
+      <tr><td>Direction</td><td>RTL (dir=rtl على HTML)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>نماذج البيانات الرئيسية</h3>
+  <pre>
+User ──── AgentProfile
+               │
+          ┌────┼──────────────┐
+          │    │              │
+      Programs  BookingRequest  LedgerEntry
+          │         │
+   ItineraryDay   Payment
+          │       Transfer
+   ItineraryItem  BookingMessage
+                  BookingMilestone
+
+Destination ── Area ── Attraction
+               └── Driver
+               └── ServiceProvider</pre>
+</section>
+
+<!-- Section 7 -->
+<section id="s7">
+  <div class="section-header">
+    <div class="section-num">7</div>
+    <h2>المتطلبات غير الوظيفية</h2>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>المتطلب</th><th>التفاصيل</th></tr></thead>
+    <tbody>
+      <tr><td>الأداء</td><td>Cold start &lt; 200ms على Cloudflare Workers</td></tr>
+      <tr><td>التوافر</td><td>99.9% uptime عبر Cloudflare Global Network</td></tr>
+      <tr><td>الأمان</td><td>HTTP-only cookies، PBKDF2، فحص الصلاحيات في كل Server Action</td></tr>
+      <tr><td>RTL</td><td>واجهة عربية كاملة، logical CSS utilities (ms/me/ps/pe)</td></tr>
+      <tr><td>العملة</td><td>أرقام صحيحة بالريال السعودي (لا عمليات عشرية)</td></tr>
+      <tr><td>التاريخ</td><td>تقويم ميلادي، منطقة الرياض (Asia/Riyadh)</td></tr>
+      <tr><td>الموبايل</td><td>تصميم متجاوب يعمل على جميع الشاشات</td></tr>
+      <tr><td>SEO</td><td>Metadata ديناميكية لكل صفحة برنامج ووجهة</td></tr>
+      <tr><td>لا JS مطلوب</td><td>فلاتر البحث تعمل كـ links عادية</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- Section 8 -->
+<section id="s8">
+  <div class="section-header">
+    <div class="section-num">8</div>
+    <h2>مقاييس النجاح (KPIs)</h2>
+  </div>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>المؤشر</th><th>الوصف</th></tr></thead>
+    <tbody>
+      <tr><td>معدل تحويل الحجز</td><td>نسبة الحجوزات التي تصل من NEW إلى CONFIRMED</td></tr>
+      <tr><td>الحجوزات المكتملة</td><td>عدد الحجوزات في حالة COMPLETED شهرياً</td></tr>
+      <tr><td>الوكلاء النشطون</td><td>عدد الوكلاء الذين لديهم حجز واحد على الأقل خلال 30 يوماً</td></tr>
+      <tr><td>البرامج المنشورة</td><td>إجمالي البرامج الفعّالة في المنصة</td></tr>
+      <tr><td>إجمالي العمولات</td><td>مجموع العمولات المدفوعة للوكلاء شهرياً</td></tr>
+      <tr><td>متوسط قيمة الحجز</td><td>متوسط totalPrice للحجوزات المؤكدة</td></tr>
+      <tr><td>الوجهات الأكثر طلباً</td><td>الوجهات التي تحتوي أكثر الحجوزات</td></tr>
+      <tr><td>مصادر الحجوزات</td><td>نسبة WEBSITE / AGENT / ADMIN</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- Section 9 -->
+<section id="s9">
+  <div class="section-header">
+    <div class="section-num">9</div>
+    <h2>خارطة الطريق</h2>
+  </div>
+
+  <h3>✅ المرحلة الحالية — v1.0 (مكتملة)</h3>
+  <ul class="checklist">
+    <li>الواجهة العامة الكاملة (صفحات، بطاقات، جداول، نماذج)</li>
+    <li>لوحة تحكم المشرف الشاملة</li>
+    <li>لوحة تحكم الوكيل مع كشف الحساب</li>
+    <li>نظام الحجز الكامل (دورة حياة 6 مراحل)</li>
+    <li>نظام العمولات والسجل المالي</li>
+    <li>نظام الإحالة عبر الروابط</li>
+    <li>متابعة الحجز للعميل (<code>/b/[code]</code>)</li>
+    <li>إدارة التحويلات والسائقين</li>
+    <li>إدارة المراحل للدراسة (7 مراحل افتراضية)</li>
+    <li>إدارة المحادثات مع العملاء</li>
+    <li>CMS لإعدادات الصفحة الرئيسية</li>
+    <li>شهادات العملاء (Testimonials)</li>
+    <li>نشر على Cloudflare Workers</li>
+  </ul>
+
+  <h3>⬜ المرحلة القادمة — v1.x (ذات أولوية عالية)</h3>
+  <ul class="checklist">
+    <li class="todo">دفع إلكتروني مباشر — تكامل مع Moyasar لقبول الدفع أونلاين</li>
+    <li class="todo">إشعارات واتساب — إرسال تحديثات الحجز تلقائياً عبر WhatsApp Business API</li>
+    <li class="todo">نظام تقييم البرامج — تقييم العملاء بعد اكتمال الرحلة</li>
+    <li class="todo">لوحة تحليلات — إحصائيات متقدمة للمشرف</li>
+  </ul>
+
+  <h3>⬜ ذات أولوية متوسطة</h3>
+  <ul class="checklist">
+    <li class="todo">نظام القسائم والخصومات — كودات الخصم للحجوزات</li>
+    <li class="todo">تصدير التقارير — PDF لكشف حساب الوكيل وتقارير الحجوزات</li>
+    <li class="todo">إشعارات البريد الإلكتروني — تأكيد الحجز وتحديثات الحالة</li>
+    <li class="todo">تعدد اللغات — إضافة واجهة إنجليزية اختيارية</li>
+  </ul>
+
+  <h3>⬜ رؤية بعيدة المدى — v2.0</h3>
+  <ul class="checklist">
+    <li class="todo">تطبيق موبايل — iOS + Android</li>
+    <li class="todo">سوق البرامج المفتوح للوكلاء</li>
+    <li class="todo">تكامل مع شركات الطيران</li>
+    <li class="todo">برنامج ولاء للعملاء المتكررين</li>
+  </ul>
+</section>
+
+<!-- Section 10 -->
+<section id="s10">
+  <div class="section-header">
+    <div class="section-num">10</div>
+    <h2>الملاحق</h2>
+  </div>
+
+  <h3>أ. قاموس المصطلحات</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>المصطلح</th><th>الشرح</th></tr></thead>
+    <tbody>
+      <tr><td>Booking Code</td><td>رمز الحجز الفريد (مثال: KH-7F3K2A)</td></tr>
+      <tr><td>Referral Code</td><td>كود الوكيل للإحالة (مثال: KH1A2B3)</td></tr>
+      <tr><td>Ledger</td><td>سجل المعاملات المالية للوكيل</td></tr>
+      <tr><td>Transfer</td><td>طلب تنقل (سيارة، حافلة) ضمن الحجز</td></tr>
+      <tr><td>Milestone</td><td>مرحلة من مراحل معالجة ملف الدراسة</td></tr>
+      <tr><td>isApproved</td><td>علم الموافقة الإدارية على البرنامج</td></tr>
+      <tr><td>managerAgentId</td><td>الوكيل المفوَّض لإدارة الحجز (مختلف عن وكيل الإحالة)</td></tr>
+      <tr><td>UNLISTED</td><td>برنامج غير مدرج في البحث لكن قابل للوصول برابط مباشر</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>ب. أنواع عناصر الجدول اليومي</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>النوع</th><th>الرمز</th><th>الوصف</th></tr></thead>
+    <tbody>
+      <tr><td>ACTIVITY</td><td>✨</td><td>نشاط أو جولة سياحية</td></tr>
+      <tr><td>TRANSPORT</td><td>🚌</td><td>تنقّل داخلي (سيارة، حافلة)</td></tr>
+      <tr><td>HOTEL</td><td>🛏</td><td>إقامة فندقية</td></tr>
+      <tr><td>MEAL</td><td>🍴</td><td>وجبة (فطور، غداء، عشاء)</td></tr>
+      <tr><td>FLIGHT</td><td>✈️</td><td>رحلة جوية</td></tr>
+      <tr><td>FREE_TIME</td><td>☕</td><td>وقت حر بدون برنامج محدد</td></tr>
+      <tr><td>OTHER</td><td>📍</td><td>أخرى</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>ج. حالات الحجز بالتفصيل</h3>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>الحالة</th><th>المعنى</th><th>مَن يحرّكها</th></tr></thead>
+    <tbody>
+      <tr><td>NEW</td><td>حجز جديد لم يُتواصل معه</td><td>—</td></tr>
+      <tr><td>CONTACTED</td><td>تم التواصل مع العميل</td><td>وكيل / مشرف</td></tr>
+      <tr><td>QUOTED</td><td>تم تقديم عرض سعر</td><td>وكيل / مشرف</td></tr>
+      <tr><td>CONFIRMED</td><td>مؤكد رسمياً — تُنشأ العمولات</td><td>مشرف فقط</td></tr>
+      <tr><td>COMPLETED</td><td>تم تنفيذ الرحلة بنجاح</td><td>مشرف فقط</td></tr>
+      <tr><td>CANCELLED</td><td>ملغي</td><td>مشرف فقط</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="doc-footer">
+  <p><strong>منصة خطار — Khattar Platform</strong></p>
+  <p>آخر تحديث: يونيو 2026 &nbsp;|&nbsp; الإصدار v1.0 &nbsp;|&nbsp; هذه الوثيقة سرية للاستخدام الداخلي</p>
+  <p style="margin-top:8px;font-size:12px;">لحفظ نسخة PDF: افتح في المتصفح ← Ctrl+P (أو Cmd+P) ← اختر "حفظ كـ PDF"</p>
+</div>
+
+</div>
+</body>
+</html>
